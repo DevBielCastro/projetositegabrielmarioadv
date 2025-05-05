@@ -1,0 +1,66 @@
+# .gitignore
+.env
+node_modules/
+uploads/
+*.log
+.DS_Store
+
+# .gitignore para Gabriel Mário Advogados
+
+# ======== SENSITIVE DATA ========
+.env
+.env.*
+!.env.example
+config/*.secret
+*.key
+*.pem
+*.crt
+
+# ======== LOGS & TEMPORÁRIOS ========
+logs/*
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.tmp
+*.temp
+
+# ======== DEPENDÊNCIAS ========
+node_modules/
+jspm_packages/
+bower_components/
+.pnp*
+.yarn-integrity
+
+# ======== SISTEMA/IDE ========
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+Thumbs.db
+
+# ======== UPLOADS ========
+uploads/*
+!uploads/.gitkeep
+
+# ======== BUILD/COMPILADOS ========
+dist/
+build/
+.out/
+.next/
+.cache/
+.turbo
+
+# ======== TESTES/COVERAGE ========
+coverage/
+.nyc_output/
+
+# ======== DATABASE ========
+*.dump
+*.sql
+*.mongo
+
+# ======== SERVIÇOS EXTERNOS ========
+.firebase/
+.sentryclirc

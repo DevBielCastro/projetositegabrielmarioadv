@@ -1,0 +1,32 @@
+{
+  "meta": {
+    "version": 3,
+    "last_modified": "2024-03-20T15:30:00Z"
+  },
+  "posts": [
+    {
+      "id": "1",
+      "slug": "direitos-paciente-saude-publica",
+      "title": "Direitos do Paciente na Saúde Pública",
+      "excerpt": "Entenda seus direitos fundamentais no atendimento médico público",
+      "content": "<p class='mb-4'>Na complexa relação entre cidadão e sistema público de saúde...</p>",
+      "date": "2024-03-15",
+      "author": "Gabriel Mário",
+      "category": "Direito Médico",
+      "status": "published",
+      "thumbnail": "/assets/img/blog/saude-publica-thumb.jpg"
+    },
+    {
+      "id": "2",
+      "slug": "regularizacao-imoveis-guia",
+      "title": "Regularização de Imóveis: Guia Completo",
+      "excerpt": "Passo a passo para garantir a segurança jurídica do seu patrimônio",
+      "content": "<p class='mb-4'>A regularização imobiliária é um processo fundamental para...</p>",
+      "date": "2024-03-10",
+      "author": "Gabriel Mário",
+      "category": "Direito Imobiliário",
+      "status": "published",
+      "thumbnail": "/assets/img/blog/imoveis-thumb.jpg"
+    }
+  ]
+}
