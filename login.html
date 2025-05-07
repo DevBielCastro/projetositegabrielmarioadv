@@ -38,20 +38,17 @@
             const token = document.getElementById('token').value;
 
             try {
-                const response = await fetch('http://localhost:5500/api/login', {
+                const response = await fetch('/api/auth', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ token })
                 });
 
                 const data = await response.json();
 
                 if (response.ok) {
-                    // Configuração segura do cookie
-                    document.cookie = `token=${data.token}; path=/; max-age=7200; SameSite=Strict${location.protocol === 'https:' ? '; Secure' : ''}`;
-                    window.location.href = '/admin';
+                    localStorage.setItem('authToken', data.token);
+                    window.location.href = '/admin.html';
                 } else {
                     alert(data.error || 'Token inválido!');
                 }

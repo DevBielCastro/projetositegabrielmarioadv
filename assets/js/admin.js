@@ -1,21 +1,10 @@
 // assets/js/admin.js
-
-// Configurações da API
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = '/api';
 let authToken = localStorage.getItem('authToken');
-
-// Sistema de Autenticação
-function authCheck() {
-    if (!authToken) {
-        window.location.href = '/login.html';
-    }
-}
-
-// Estado da Aplicação
 let currentPosts = [];
 let currentPostId = null;
 
-// Elementos DOM
+// Elementos DOM - Verifique se os IDs correspondem ao seu HTML
 const dom = {
     postsList: document.getElementById('postsList'),
     editModal: document.getElementById('editModal'),
@@ -23,13 +12,20 @@ const dom = {
     postExcerpt: document.getElementById('postExcerpt'),
     postContent: document.getElementById('postContent'),
     postCategory: document.getElementById('postCategory'),
-    postThumbnail: document.getElementById('postThumbnail'),
-    postStatus: document.getElementById('postStatus'),
-    saveButton: document.getElementById('saveButton'),
-    cancelButton: document.getElementById('cancelButton'),
     imageUpload: document.getElementById('imageUpload'),
-    thumbPreview: document.getElementById('thumbPreview')
+    thumbPreview: document.getElementById('thumbPreview'),
+    postForm: document.getElementById('postForm'),
+    postStatus: document.getElementById('postStatus'),
+    cancelButton: document.getElementById('cancelButton')
 };
+
+// Verificação de autenticação
+function authCheck() {
+    if (!authToken) {
+        alert('Sessão expirada! Redirecionando...');
+        window.location.href = '/login.html';
+    }
+}
 
 // Inicialização
 document.addEventListener('DOMContentLoaded', () => {
@@ -39,21 +35,21 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function setupEventListeners() {
-    document.getElementById('newPostButton').addEventListener('click', newPost);
-    dom.saveButton.addEventListener('click', savePost);
-    dom.cancelButton.addEventListener('click', cancelEdit);
+    dom.postForm.addEventListener('submit', savePost);
     dom.imageUpload.addEventListener('change', handleImageUpload);
+    dom.cancelButton.addEventListener('click', cancelEdit);
 }
 
-// Carregar Posts da API
+// Carregar posts
 async function loadPosts() {
     try {
         const response = await fetch(`${API_BASE}/posts`, {
             headers: {
-                'Authorization': `Bearer ${authToken}`
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
             }
         });
-        
+
         if (!response.ok) throw new Error('Erro ao carregar posts');
         
         currentPosts = await response.json();
@@ -64,7 +60,7 @@ async function loadPosts() {
     }
 }
 
-// Renderizar Posts
+// Renderizar posts
 function renderPosts() {
     dom.postsList.innerHTML = currentPosts.map(post => `
         <div class="bg-white p-6 rounded-lg shadow-md mb-6">
@@ -72,9 +68,9 @@ function renderPosts() {
                 <div class="flex-1">
                     <h3 class="text-xl font-semibold text-accent">${post.title}</h3>
                     <div class="mt-2 text-sm text-gray-600">
-                        <span class="mr-4">${post.date}</span>
+                        <span class="mr-4">${new Date(post.createdAt).toLocaleDateString()}</span>
                         <span class="bg-accent/10 text-accent px-2 py-1 rounded">${post.category}</span>
-                        <span class="ml-2 text-sm ${post.status === 'published' ? 'text-green-600' : 'text-yellow-600'}">
+                        <span class="ml-2 ${post.status === 'published' ? 'text-green-600' : 'text-yellow-600'}">
                             (${post.status === 'published' ? 'Publicado' : 'Rascunho'})
                         </span>
                     </div>
@@ -92,7 +88,7 @@ function renderPosts() {
     `).join('');
 }
 
-// Upload de Imagem
+// Upload de imagem
 async function handleImageUpload(e) {
     const file = e.target.files[0];
     const formData = new FormData();
@@ -106,54 +102,55 @@ async function handleImageUpload(e) {
             },
             body: formData
         });
-        
+
         const data = await response.json();
         dom.thumbPreview.src = data.url;
-        dom.postThumbnail.value = data.url;
+        dom.thumbPreview.classList.remove('hidden');
     } catch (error) {
         console.error('Erro no upload:', error);
         alert('Erro ao enviar imagem!');
     }
 }
 
-// Funções de CRUD
-async function savePost() {
-    const postData = {
-        title: dom.postTitle.value,
-        excerpt: dom.postExcerpt.value,
-        content: dom.postContent.value,
-        category: dom.postCategory.value,
-        thumbnail: dom.postThumbnail.value,
-        status: dom.postStatus.value
-    };
+// Salvar/Editar post
+async function savePost(e) {
+    e.preventDefault();
+    const formData = new FormData();
+    
+    formData.append('title', dom.postTitle.value);
+    formData.append('content', dom.postContent.value);
+    formData.append('excerpt', dom.postExcerpt.value);
+    formData.append('category', dom.postCategory.value);
+    formData.append('status', dom.postStatus.value);
+    
+    if (dom.imageUpload.files[0]) {
+        formData.append('image', dom.imageUpload.files[0]);
+    }
 
     try {
-        const url = currentPostId 
-            ? `${API_BASE}/posts/${currentPostId}`
-            : `${API_BASE}/posts`;
-
         const method = currentPostId ? 'PUT' : 'POST';
+        const url = currentPostId ? `${API_BASE}/posts/${currentPostId}` : `${API_BASE}/posts`;
 
         const response = await fetch(url, {
             method,
             headers: {
-                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${authToken}`
             },
-            body: JSON.stringify(postData)
+            body: formData
         });
 
         if (!response.ok) throw new Error('Erro ao salvar post');
-
+        
         dom.editModal.classList.add('hidden');
         loadPosts();
-        alert('Post salvo com sucesso!');
+        resetForm();
     } catch (error) {
         console.error('Erro:', error);
         alert('Erro ao salvar post!');
     }
 }
 
+// Excluir post
 async function deletePost(id) {
     if (!confirm('Tem certeza que deseja excluir este artigo?')) return;
 
@@ -164,11 +161,10 @@ async function deletePost(id) {
                 'Authorization': `Bearer ${authToken}`
             }
         });
-        
+
         if (!response.ok) throw new Error('Erro ao excluir post');
         
         loadPosts();
-        alert('Post excluído com sucesso!');
     } catch (error) {
         console.error('Erro:', error);
         alert('Erro ao excluir post!');
@@ -176,39 +172,19 @@ async function deletePost(id) {
 }
 
 // Funções auxiliares
-function newPost() {
-    currentPostId = null;
-    resetForm();
-    dom.editModal.classList.remove('hidden');
-}
-
 function startEdit(id) {
     const post = currentPosts.find(p => p._id === id);
-    if (post) {
-        currentPostId = id;
-        populateForm(post);
-        dom.editModal.classList.remove('hidden');
-    }
-}
+    if (!post) return;
 
-function populateForm(post) {
+    currentPostId = id;
     dom.postTitle.value = post.title;
-    dom.postExcerpt.value = post.excerpt;
     dom.postContent.value = post.content;
+    dom.postExcerpt.value = post.excerpt;
     dom.postCategory.value = post.category;
-    dom.postThumbnail.value = post.thumbnail;
     dom.postStatus.value = post.status;
     dom.thumbPreview.src = post.thumbnail || 'placeholder.jpg';
-}
-
-function resetForm() {
-    dom.postTitle.value = '';
-    dom.postExcerpt.value = '';
-    dom.postContent.value = '';
-    dom.postCategory.value = 'Geral';
-    dom.postThumbnail.value = '';
-    dom.postStatus.value = 'draft';
-    dom.thumbPreview.src = 'placeholder.jpg';
+    dom.thumbPreview.classList.remove('hidden');
+    dom.editModal.classList.remove('hidden');
 }
 
 function cancelEdit() {
@@ -216,11 +192,14 @@ function cancelEdit() {
     resetForm();
 }
 
-function logout() {
-    localStorage.removeItem('authToken');
-    window.location.href = '/';
+function resetForm() {
+    currentPostId = null;
+    dom.postForm.reset();
+    dom.thumbPreview.src = '';
+    dom.thumbPreview.classList.add('hidden');
+    dom.imageUpload.value = '';
 }
 
-// Exportar funções para o escopo global
+// Exportar para escopo global
 window.startEdit = startEdit;
 window.deletePost = deletePost;

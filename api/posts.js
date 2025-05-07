@@ -1,22 +1,23 @@
+// api/posts.js
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
-const Post = mongoose.model('Post');
+const Post = require('./models/post');
 const auth = require('../middleware/auth');
 const fs = require('fs');
 const path = require('path');
 
+// Middleware de sanitização
 const sanitizePost = (req, res, next) => {
-    const allowedFields = ['title', 'content', 'excerpt', 'category', 'thumbnail', 'status'];
+    const allowedFields = ['title', 'content', 'excerpt', 'category', 'status'];
     req.body = Object.keys(req.body).reduce((acc, key) => {
-        if (allowedFields.includes(key)) {
-            acc[key] = req.body[key];
-        }
+        if (allowedFields.includes(key)) acc[key] = req.body[key];
         return acc;
     }, {});
     next();
 };
 
+// Limpeza de arquivos em caso de erro
 const handleFileCleanup = (req, res, next) => {
     res.on('finish', () => {
         if (req.file && res.statusCode >= 400) {
@@ -27,6 +28,7 @@ const handleFileCleanup = (req, res, next) => {
 };
 
 module.exports = (upload) => {
+    // Listar posts com paginação
     router.get('/', auth, async (req, res) => {
         try {
             const { page = 1, limit = 10 } = req.query;
@@ -38,7 +40,15 @@ module.exports = (upload) => {
             const count = await Post.countDocuments();
             
             res.json({
-                posts,
+                posts: posts.map(post => ({
+                    _id: post._id,
+                    title: post.title,
+                    excerpt: post.excerpt,
+                    category: post.category,
+                    thumbnail: post.thumbnail,
+                    status: post.status,
+                    createdAt: post.createdAt
+                })),
                 totalPages: Math.ceil(count / limit),
                 currentPage: parseInt(page)
             });
@@ -47,39 +57,51 @@ module.exports = (upload) => {
         }
     });
 
-    router.post('/', auth, sanitizePost, upload.single('thumbnail'), handleFileCleanup, async (req, res) => {
+    // Criar novo post
+    router.post('/', auth, upload.single('image'), handleFileCleanup, async (req, res) => {
         try {
+            const { title, content, excerpt, category } = req.body;
+            
             const postData = {
-                ...req.body,
-                author: req.user.userId,
-                slug: req.body.title
-                    .toLowerCase()
+                title,
+                content,
+                excerpt,
+                category,
+                thumbnail: req.file ? `/uploads/${req.file.filename}` : '',
+                slug: title.toLowerCase()
                     .replace(/ /g, '-')
-                    .replace(/[^\w-]+/g, '')
+                    .replace(/[^a-z0-9-]/g, ''),
+                status: 'published'
             };
-
-            if (req.file) {
-                postData.thumbnail = `/uploads/${req.file.filename}`;
-            }
 
             const post = new Post(postData);
             await post.save();
+            
             res.status(201).json(post);
         } catch (error) {
-            res.status(400).json({ error: 'Erro ao criar post' });
+            res.status(400).json({ 
+                error: 'Erro ao criar post',
+                details: error.message
+            });
         }
     });
 
-    router.put('/:id', auth, sanitizePost, upload.single('thumbnail'), handleFileCleanup, async (req, res) => {
+    // Atualizar post
+    router.put('/:id', auth, upload.single('image'), handleFileCleanup, async (req, res) => {
         try {
             const post = await Post.findById(req.params.id);
             if (!post) return res.status(404).json({ error: 'Post não encontrado' });
 
-            const updateData = { ...req.body };
-            
+            const updateData = {
+                ...req.body,
+                slug: req.body.title.toLowerCase()
+                    .replace(/ /g, '-')
+                    .replace(/[^a-z0-9-]/g, '')
+            };
+
             if (req.file) {
                 if (post.thumbnail) {
-                    const oldPath = path.join(__dirname, '..', post.thumbnail);
+                    const oldPath = path.join(__dirname, '../', post.thumbnail);
                     if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
                 }
                 updateData.thumbnail = `/uploads/${req.file.filename}`;
@@ -90,24 +112,32 @@ module.exports = (upload) => {
                 updateData,
                 { new: true, runValidators: true }
             );
+            
             res.json(updatedPost);
         } catch (error) {
-            res.status(400).json({ error: 'Erro ao atualizar post' });
+            res.status(400).json({ 
+                error: 'Erro ao atualizar post',
+                details: error.message
+            });
         }
     });
 
+    // Excluir post
     router.delete('/:id', auth, async (req, res) => {
         try {
             const post = await Post.findByIdAndDelete(req.params.id);
             
             if (post?.thumbnail) {
-                const filePath = path.join(__dirname, '..', post.thumbnail);
+                const filePath = path.join(__dirname, '../', post.thumbnail);
                 if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
             }
             
             res.json({ message: 'Post excluído com sucesso' });
         } catch (error) {
-            res.status(400).json({ error: 'Erro ao excluir post' });
+            res.status(400).json({ 
+                error: 'Erro ao excluir post',
+                details: error.message
+            });
         }
     });
 
