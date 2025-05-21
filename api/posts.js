@@ -1,4 +1,3 @@
-// api/posts.js
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
@@ -7,7 +6,7 @@ const auth = require('../middleware/auth');
 const fs = require('fs');
 const path = require('path');
 
-// Middleware de sanitização
+// Sanitiza campos permitidos no corpo da requisição para prevenir dados indesejados
 const sanitizePost = (req, res, next) => {
     const allowedFields = ['title', 'content', 'excerpt', 'category', 'status'];
     req.body = Object.keys(req.body).reduce((acc, key) => {
@@ -17,7 +16,7 @@ const sanitizePost = (req, res, next) => {
     next();
 };
 
-// Limpeza de arquivos em caso de erro
+// Remove arquivo enviado em caso de erro na resposta, evitando arquivos órfãos
 const handleFileCleanup = (req, res, next) => {
     res.on('finish', () => {
         if (req.file && res.statusCode >= 400) {
@@ -28,8 +27,11 @@ const handleFileCleanup = (req, res, next) => {
 };
 
 module.exports = (upload) => {
-    // Listar posts com paginação
-    router.get('/', auth, async (req, res) => {
+    /**
+     * GET /api/posts
+     * Lista posts paginados, retorna metadados de paginação
+     */
+    router.get('/', auth, sanitizePost, async (req, res) => {
         try {
             const { page = 1, limit = 10 } = req.query;
             const posts = await Post.find()
@@ -57,8 +59,11 @@ module.exports = (upload) => {
         }
     });
 
-    // Criar novo post
-    router.post('/', auth, upload.single('image'), handleFileCleanup, async (req, res) => {
+    /**
+     * POST /api/posts
+     * Cria um novo post com upload de imagem e sanitização dos campos
+     */
+    router.post('/', auth, upload.single('image'), handleFileCleanup, sanitizePost, async (req, res) => {
         try {
             const { title, content, excerpt, category } = req.body;
             
@@ -86,12 +91,16 @@ module.exports = (upload) => {
         }
     });
 
-    // Atualizar post
-    router.put('/:id', auth, upload.single('image'), handleFileCleanup, async (req, res) => {
+    /**
+     * PUT /api/posts/:id
+     * Atualiza um post existente, substitui imagem se fornecida
+     */
+    router.put('/:id', auth, upload.single('image'), handleFileCleanup, sanitizePost, async (req, res) => {
         try {
             const post = await Post.findById(req.params.id);
             if (!post) return res.status(404).json({ error: 'Post não encontrado' });
 
+            // Prepara dados de atualização e nova slug
             const updateData = {
                 ...req.body,
                 slug: req.body.title.toLowerCase()
@@ -99,6 +108,7 @@ module.exports = (upload) => {
                     .replace(/[^a-z0-9-]/g, '')
             };
 
+            // Se houver novo arquivo, remove thumbnail antiga e atualiza caminho
             if (req.file) {
                 if (post.thumbnail) {
                     const oldPath = path.join(__dirname, '../', post.thumbnail);
@@ -122,11 +132,15 @@ module.exports = (upload) => {
         }
     });
 
-    // Excluir post
+    /**
+     * DELETE /api/posts/:id
+     * Remove post e arquivo de imagem associado
+     */
     router.delete('/:id', auth, async (req, res) => {
         try {
             const post = await Post.findByIdAndDelete(req.params.id);
             
+            // Se existir thumbnail, remove do sistema de arquivos
             if (post?.thumbnail) {
                 const filePath = path.join(__dirname, '../', post.thumbnail);
                 if (fs.existsSync(filePath)) fs.unlinkSync(filePath);

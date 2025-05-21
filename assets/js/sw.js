@@ -1,4 +1,6 @@
+// Define nome e versão do cache para controle de armazenamento
 const CACHE_NAME = 'gabriel-mario-v3';
+// Lista de recursos essenciais para funcionamento offline
 const ASSETS = [
   '/',
   '/index.html',
@@ -21,7 +23,8 @@ const ASSETS = [
   '/assets/img/deficiencia.jpg'
 ];
 
-self.addEventListener('install', (event) => {
+// Evento de instalação: pré-cache dos recursos listados
+self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(ASSETS))
@@ -29,24 +32,24 @@ self.addEventListener('install', (event) => {
   );
 });
 
-self.addEventListener('fetch', (event) => {
+// Intercepta requisições de rede e implementa estratégia de cache
+self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(cachedResponse => {
-        // Retorna resposta em cache se existir
+        // Se resposta estiver no cache, retorna imediatamente
         if (cachedResponse) return cachedResponse;
 
-        // Se não estiver em cache, faz a requisição
+        // Caso contrário, busca na rede
         return fetch(event.request.clone())
           .then(response => {
-            // Verifica se a resposta é válida
+            // Verifica validade da resposta antes de armazenar
             if (!response || response.status !== 200 || response.type !== 'basic') {
               return response;
             }
 
-            // Clona a resposta para armazenar no cache
+            // Clona resposta e atualiza o cache em segundo plano
             const responseToCache = response.clone();
-
             caches.open(CACHE_NAME)
               .then(cache => cache.put(event.request, responseToCache))
               .catch(err => console.error('Falha ao atualizar cache:', err));
@@ -55,22 +58,24 @@ self.addEventListener('fetch', (event) => {
           })
           .catch(err => {
             console.error('Falha na requisição:', err);
-            throw err; // Propaga o erro para o navegador
+            // Propaga erro para fallback de navegador (ex.: mostrar offline.html)
+            throw err;
           });
       })
   );
 });
 
-self.addEventListener('activate', (event) => {
+// Evento de ativação: remove caches antigos para liberar espaço
+self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
+    caches.keys().then(cacheNames =>
+      Promise.all(
+        cacheNames.map(name => {
+          if (name !== CACHE_NAME) {
+            return caches.delete(name);
           }
         })
-      );
-    })
+      )
+    )
   );
 });

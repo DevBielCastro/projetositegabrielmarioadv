@@ -1,6 +1,4 @@
-// assets/js/main.js
-
-// Service Worker
+// Registra o Service Worker para habilitar funcionalidades offline e atualizações em segundo plano
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js')
@@ -13,7 +11,7 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// Inicialização do AOS (Animate On Scroll)
+// Inicializa o AOS (Animate On Scroll) e configura atualização após carregamento completo
 document.addEventListener('DOMContentLoaded', () => {
     AOS.init({
         duration: 800,
@@ -22,47 +20,44 @@ document.addEventListener('DOMContentLoaded', () => {
         mirror: false
     });
 
-    // Reinicia animações ao alternar páginas
+    // Recarrega animações ao alternar páginas
     window.addEventListener('load', AOS.refresh);
 });
 
-// Controle das áreas de atuação com Alpine.js
+// Define componente Alpine.js para controlar áreas de atuação
 document.addEventListener('alpine:init', () => {
     Alpine.data('app', () => ({
         openArea: null,
         
+        // Alterna visibilidade de uma área específica
         toggleArea(key) {
-            this.openArea = this.openArea === key ? null : key;
-            
-            // Força redesenho para animações
-            setTimeout(() => {
-                AOS.refresh();
-            }, 300);
+            this.openArea = (this.openArea === key) ? null : key;
+            // Garante redesenho das animações após alternância
+            setTimeout(() => AOS.refresh(), 300);
         },
 
+        // Método chamado na inicialização do componente
         init() {
-            // Fecha todas as áreas ao carregar
-            this.openArea = null;
+            this.openArea = null; // Fecha todas as áreas ao iniciar
             
-            // Verificação de contraste para logos
+            // Avalia contraste de logos para acessibilidade
             document.querySelectorAll('.logo-container').forEach(container => {
                 const bgColor = getComputedStyle(container).backgroundColor;
                 const contrast = getContrastRatio('#D4AF37', bgColor);
-                if(contrast < 4.5) container.classList.add('low-contrast');
+                if (contrast < 4.5) container.classList.add('low-contrast');
             });
         }
     }));
 });
 
-// Função auxiliar de contraste
+// Calcula razão de contraste simplificada entre duas cores (exemplo de implementação)
 function getContrastRatio(color1, color2) {
-    // Implementação simplificada
-    const luminance1 = 1; // Simulação
-    const luminance2 = 0.2; // Simulação
+    const luminance1 = 1; // Valor simulado para luminância
+    const luminance2 = 0.2; // Valor simulado para luminância
     return (Math.max(luminance1, luminance2) + 0.05) / (Math.min(luminance1, luminance2) + 0.05);
 }
 
-// Hot Reload para desenvolvimento
+// Habilita recarregamento automático em ambiente de desenvolvimento (localhost)
 if (window.location.hostname === 'localhost') {
     new EventSource('/esbuild').addEventListener('change', () => location.reload());
 }
