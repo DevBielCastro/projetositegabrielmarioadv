@@ -1,58 +1,64 @@
-# Gabriel Mário - Advogado Especialista
+# 🧑‍⚖️ Gabriel Mário - Advogado Especialista
 
 ![Preview do Site](assets/img/logo-dourada-transparente.webp)
 
-Site profissional do Advogado Gabriel Mário, especialista em Direito Estratégico com atuação nacional em Saúde, Imobiliário e Previdenciário.
+Website institucional do advogado **Gabriel Mário**, especialista em **Direito Estratégico**, com atuação nacional nas áreas de **Direito da Saúde, Imobiliário e Previdenciário**.
 
-## ✨ Funcionalidades Principais
+---
 
-- **Site Institucional Moderno**
-  - Apresentação profissional com seções estratégicas
-  - Design responsivo e otimizado para conversão
-  - SEO avançado com metatags personalizadas
+## ✨ Funcionalidades
 
-- **Áreas de Atuação Detalhadas**
-  - 9 especialidades jurídicas com detalhamento interativo
-  - Acordeões expansivos com conteúdo estratégico
-  - Imagens ilustrativas para cada área do direito
+### 📌 Site Institucional Moderno
+- Design responsivo com foco em conversão
+- Seções organizadas para apresentação clara dos serviços
+- Otimizado para SEO com metatags customizadas
 
-- **Blog Integrado**
-  - Sistema dinâmico de artigos jurídicos
-  - Carregamento assíncrono de posts
-  - Categorização automática de conteúdo
+### ⚖️ Áreas de Atuação
+- 9 especialidades jurídicas detalhadas
+- Componentes interativos com acordeões expansivos
+- Ilustrações personalizadas para cada área do Direito
 
-- **Recursos Avançados**
-  - Sistema de contato integrado com redes sociais
-  - Animações suaves com AOS Library
-  - Menu fixo com navegação fluida
+### 📰 Blog Jurídico Integrado
+- Sistema dinâmico de posts
+- Carregamento assíncrono de artigos
+- Categorização automática por tipo de conteúdo
 
-## 🛠 Stack Tecnológica
+### 🔧 Recursos Adicionais
+- Formulário de contato + integração com redes sociais
+- Animações com AOS (Animate On Scroll)
+- Navegação fluida com menu fixo e responsivo
 
-**Frontend**
-- Tailwind CSS 3.0+ (Customizado)
-- Alpine.js para interatividade
-- AOS (Animate On Scroll)
-- Font Awesome 6.0+
+---
 
-**Backend**
-- Node.js + Express
-- MongoDB Atlas
-- JWT Authentication
-- Rate Limiting e Helmet Security
+## 🛠️ Stack Tecnológica
 
-**Ferramentas**
-- Webpack (Otimização de assets)
-- PostCSS (Processamento CSS)
-- ESLint + Prettier (Padronização)
+### 💻 Frontend
+- **Tailwind CSS 3+** (customizado)
+- **Alpine.js** (eventos e interações leves)
+- **AOS** (animações ao rolar)
+- **Font Awesome 6+**
 
-## 🚀 Instalação Local
+### 🧠 Backend
+- **Node.js + Express**
+- **MongoDB Atlas**
+- **JWT Authentication**
+- **Helmet + Rate Limiting** (segurança básica)
 
-1. **Pré-requisitos**
-   - Node.js 18.x+
-   - MongoDB 6.0+
-   - Git 2.x+
+### 🧰 Ferramentas de Suporte
+- **Webpack** (bundle e otimização)
+- **PostCSS** (processamento de estilos)
+- **ESLint + Prettier** (padronização de código)
 
-2. **Clonar Repositório**
-   ```bash
-   git clone https://github.com/DevBielCastro/projetositegabrielmarioadv
-   cd gmadv-site
+---
+
+## 🚀 Como Rodar Localmente
+
+### 1. Pré-requisitos
+- **Node.js** 18+
+- **MongoDB** 6.0+
+- **Git** 2.x+
+
+### 2. Clone o Repositório
+```bash
+git clone https://github.com/DevBielCastro/projetositegabrielmarioadv
+cd gmadv-site

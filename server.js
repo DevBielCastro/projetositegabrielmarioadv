@@ -1,24 +1,33 @@
-require('dotenv').config();
+// server.js
+// Arquivo principal do servidor backend
+
+require('dotenv').config({ path: __dirname + '/.env' });
+console.log('DEBUG server.js → MONGODB_URI =', process.env.MONGODB_URI);
 const express = require('express');
-const mongoose = require('mongoose');
 const multer = require('multer');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
-const rateLimit = require('express-rate-limit');
-const helmet = require('helmet');
+const limitarRequisicoes = require('express-rate-limit');
+const protecaoCabecalhos = require('helmet');
 const morgan = require('morgan');
 const fs = require('fs');
 
-const app = express();
-const port = process.env.PORT || 5500;
+// Conexão com o banco de dados MongoDB
+const conectarAoBancoDeDados = require('./database');
 
-// ==================== CONFIGURAÇÕES INICIAIS ====================
-const logsDir = path.join(__dirname, 'logs');
-if (!fs.existsSync(logsDir)) fs.mkdirSync(logsDir);
+const aplicativo = express();
+const porta = process.env.PORT || 5500;
 
-// ==================== MIDDLEWARES ESSENCIAIS ====================
-app.use(helmet({
+// ==================== CONFIGURAÇÕES DE LOGS ====================
+const caminhoParaPastaDeLogs = path.join(__dirname, 'logs');
+if (!fs.existsSync(caminhoParaPastaDeLogs)) fs.mkdirSync(caminhoParaPastaDeLogs);
+
+const fluxoLogAcesso = fs.createWriteStream(path.join(caminhoParaPastaDeLogs, 'access.log'), { flags: 'a' });
+const fluxoLogSeguranca = fs.createWriteStream(path.join(caminhoParaPastaDeLogs, 'security.log'), { flags: 'a' });
+
+// ==================== MIDDLEWARES DE SEGURANÇA ====================
+aplicativo.use(protecaoCabecalhos({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
@@ -30,92 +39,82 @@ app.use(helmet({
   }
 }));
 
-app.use(cors({
+aplicativo.use(cors({
   origin: ['http://localhost:5500', 'http://192.168.0.7:5500'],
   credentials: true
 }));
 
-app.use(express.json());
-app.use(cookieParser());
-app.use(express.static(__dirname));
-app.use('/uploads', express.static('uploads'));
+// ==================== MIDDLEWARES GERAIS ====================
+aplicativo.use(express.json());
+aplicativo.use(cookieParser());
+aplicativo.use(express.static(__dirname));
+aplicativo.use('/uploads', express.static('uploads'));
 
-// ==================== RATE LIMITING ====================
-const limiter = rateLimit({
+// ==================== LIMITE DE REQUISIÇÕES ====================
+const configuracaoLimite = limitarRequisicoes({
   windowMs: 60 * 1000,
   max: 1000,
   message: 'Muitas requisições deste IP - tente novamente mais tarde',
-  skip: (req) => ['::1', '127.0.0.1'].includes(req.ip)
+  skip: (requisicao) => ['::1', '127.0.0.1'].includes(requisicao.ip)
 });
-app.use('/api/', limiter);
+aplicativo.use('/api/', configuracaoLimite);
 
-// ==================== LOGS ====================
-const accessLogStream = fs.createWriteStream(
-  path.join(logsDir, 'access.log'), { flags: 'a' }
-);
-const securityLogStream = fs.createWriteStream(
-  path.join(logsDir, 'security.log'), { flags: 'a' }
-);
-app.use(morgan('combined', { stream: accessLogStream }));
+// ==================== LOGS DE ACESSO E SEGURANÇA ====================
+aplicativo.use(morgan('combined', { stream: fluxoLogAcesso }));
 
-app.use((req, res, next) => {
-  res.on('finish', () => {
-    if (res.statusCode >= 400) {
-      securityLogStream.write(
-        `[${new Date().toISOString()}] ${req.ip} ${req.method} ${req.url} ${res.statusCode}\n`
+aplicativo.use((requisicao, resposta, proximo) => {
+  resposta.on('finish', () => {
+    if (resposta.statusCode >= 400) {
+      fluxoLogSeguranca.write(
+        `[${new Date().toISOString()}] ${requisicao.ip} ${requisicao.method} ${requisicao.url} ${resposta.statusCode}\n`
       );
     }
   });
-  next();
+  proximo();
 });
 
-// ==================== CONEXÃO COM MONGODB ====================
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => console.log('Conectado ao MongoDB'))
-.catch(err => console.error('Erro de conexão:', err));
+// ==================== CONEXÃO COM BANCO DE DADOS ====================
+conectarAoBancoDeDados();
 
-// ==================== MODELOS ====================
-require('./api/models/post'); // Carrega o modelo Post primeiro
+// ==================== CARREGAMENTO DE MODELOS ====================
+require('./api/models/post'); // Modelo de postagens
 
 // ==================== CONFIGURAÇÃO DE UPLOAD ====================
-const upload = multer({
+const configuracaoUpload = multer({
   storage: multer.diskStorage({
     destination: 'uploads/',
-    filename: (req, file, cb) => {
-      cb(null, Date.now() + path.extname(file.originalname));
+    filename: (requisicao, arquivo, callback) => {
+      callback(null, Date.now() + path.extname(arquivo.originalname));
     }
   }),
   limits: { fileSize: 10 * 1024 * 1024 } // 10MB
 });
 
-// ==================== ROTAS ====================
-app.post('/api/auth', require('./api/auth'));
-app.use('/api/posts', require('./api/posts')(upload));
+// ==================== ROTAS DE API ====================
+aplicativo.post('/api/auth', require('./api/auth'));
+aplicativo.use('/api/posts', require('./api/posts')(configuracaoUpload));
 
 // Upload de imagens
-app.post('/api/upload', upload.single('image'), (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'Nenhuma imagem enviada' });
-  res.json({ url: `/uploads/${req.file.filename}` });
+aplicativo.post('/api/upload', configuracaoUpload.single('image'), (requisicao, resposta) => {
+  if (!requisicao.file) return resposta.status(400).json({ erro: 'Nenhuma imagem enviada' });
+  resposta.json({ url: `/uploads/${requisicao.file.filename}` });
 });
 
-// Rotas estáticas
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
-app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
-app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
+// ==================== ROTAS ESTÁTICAS ====================
+aplicativo.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+aplicativo.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
+aplicativo.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
 
 // ==================== TRATAMENTO DE ERROS ====================
-app.use((req, res) => res.status(404).sendFile(path.join(__dirname, '404.html')));
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  securityLogStream.write(`[${new Date().toISOString()}] ERRO ${err.stack}\n`);
+aplicativo.use((req, res) => res.status(404).sendFile(path.join(__dirname, '404.html')));
+aplicativo.use((erro, req, res, proximo) => {
+  console.error(erro.stack);
+  fluxoLogSeguranca.write(`[${new Date().toISOString()}] ERRO ${erro.stack}\n`);
   res.status(500).sendFile(path.join(__dirname, '500.html'));
 });
 
-// ==================== INICIALIZAÇÃO ====================
-app.listen(port, () => {
-  console.log(`Servidor rodando em http://localhost:${port}`);
-  console.log(`Logs de acesso: ${path.join(logsDir, 'access.log')}`);
+// ==================== INICIALIZAÇÃO DO SERVIDOR ====================
+aplicativo.listen(porta, () => {
+  console.log(`🚀 Servidor rodando em http://localhost:${porta}`);
+  console.log(`📁 Logs de acesso: ${path.join(caminhoParaPastaDeLogs, 'access.log')}`);
 });
