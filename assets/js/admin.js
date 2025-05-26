@@ -63,7 +63,6 @@ function setupEventListeners() {
 
   dom.imageUpload.addEventListener('change', handleImagePreview);
   dom.postForm.addEventListener('submit', adicionarCardRascunho);
-  dom.btnEnviarPost.addEventListener('click', enviarPostParaAPI); // ← Aqui está o botão que faltava
 }
 
 // Preview da imagem no admin
@@ -105,7 +104,7 @@ function adicionarCardRascunho(e) {
   resetForm();
 }
 
-// Carrega posts da API (artigos publicados)
+// Carrega posts da API
 async function loadPosts() {
   try {
     const response = await fetch(`${API_BASE}/posts`, {
@@ -124,7 +123,7 @@ async function loadPosts() {
   }
 }
 
-// Renderiza artigos publicados no admin
+// Renderiza posts
 function renderPosts() {
   dom.postsList.innerHTML = currentPosts.map(post => `
     <div class="bg-white p-6 rounded-lg shadow-md mb-6">
@@ -152,22 +151,54 @@ function renderPosts() {
   `).join('');
 }
 
-// Envia post para API e publica no site
-async function enviarPostParaAPI(e) {
+// Inicia a edição de um post existente
+function startEdit(id) {
+  const post = currentPosts.find(p => p._id === id);
+  if (!post) {
+    alert('Post não encontrado!');
+    return;
+  }
+
+  currentPostId = id;
+  dom.postTitle.value = post.title;
+  dom.postExcerpt.value = post.excerpt;
+  dom.postContent.value = post.content;
+  dom.postCategory.value = post.category;
+  dom.postStatus.value = post.status || 'draft';
+  dom.thumbPreview.src = post.image || 'placeholder.jpg';
+  dom.thumbPreview.classList.remove('hidden');
+  imagemSelecionada = post.image;
+
+  dom.editModal.classList.remove('hidden');
+}
+
+// Envia ou atualiza post na API
+dom.btnEnviarPost.addEventListener('click', async function (e) {
   e.preventDefault();
 
   const postData = {
-    title: dom.postTitle.value,
-    excerpt: dom.postExcerpt.value,
-    content: dom.postContent.value,
-    category: dom.postCategory.value,
+    title: dom.postTitle.value.trim(),
+    excerpt: dom.postExcerpt.value.trim(),
+    content: dom.postContent.value.trim(),
+    category: dom.postCategory.value.trim(),
     image: imagemSelecionada || 'placeholder.jpg',
     status: dom.postStatus.value || 'draft',
   };
 
+  if (!postData.title || !postData.content) {
+    alert('Título e conteúdo são obrigatórios.');
+    return;
+  }
+
+  dom.btnEnviarPost.disabled = true;
+  dom.btnEnviarPost.textContent = currentPostId ? 'Atualizando...' : 'Publicando...';
+
   try {
-    const response = await fetch(`${API_BASE}/posts`, {
-      method: 'POST',
+    const url = currentPostId ? `${API_BASE}/posts/${currentPostId}` : `${API_BASE}/posts`;
+    const method = currentPostId ? 'PUT' : 'POST';
+
+    const response = await fetch(url, {
+      method,
       headers: {
         'Authorization': `Bearer ${authToken}`,
         'Content-Type': 'application/json',
@@ -175,21 +206,54 @@ async function enviarPostParaAPI(e) {
       body: JSON.stringify(postData),
     });
 
-    if (!response.ok) throw new Error('Erro ao enviar post para a API');
+    if (!response.ok) throw new Error('Erro ao salvar o post');
 
-    const novoPost = await response.json();
-    currentPosts.unshift(novoPost);
+    const postAtualizado = await response.json();
+
+    if (currentPostId) {
+      const index = currentPosts.findIndex(p => p._id === currentPostId);
+      if (index !== -1) currentPosts[index] = postAtualizado;
+    } else {
+      currentPosts.unshift(postAtualizado);
+    }
+
     renderPosts();
-
     dom.editModal.classList.add('hidden');
     resetForm();
-  } catch (error) {
-    console.error('Erro ao publicar:', error);
-    alert('Erro ao publicar o artigo.');
+  } catch (err) {
+    console.error(err);
+    alert('Erro ao salvar post.');
+  } finally {
+    dom.btnEnviarPost.disabled = false;
+    dom.btnEnviarPost.textContent = 'Enviar Post';
+  }
+});
+
+// Deleta um post
+async function deletePost(id) {
+  const confirmacao = confirm('Tem certeza que deseja excluir este post?');
+  if (!confirmacao) return;
+
+  try {
+    const response = await fetch(`${API_BASE}/posts/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${authToken}`,
+      }
+    });
+
+    if (!response.ok) throw new Error('Erro ao excluir post');
+
+    currentPosts = currentPosts.filter(post => post._id !== id);
+    renderPosts();
+    alert('Post excluído com sucesso.');
+  } catch (err) {
+    console.error(err);
+    alert('Erro ao excluir post.');
   }
 }
 
-// Reset total do formulário e imagem
+// Reseta o formulário
 function resetForm() {
   currentPostId = null;
   dom.postForm.reset();
@@ -199,15 +263,6 @@ function resetForm() {
   imagemSelecionada = '';
 }
 
-// (Futuramente) Editar e excluir posts (placeholder)
-function startEdit(id) {
-  alert(`Função de edição para ID: ${id} ainda será implementada.`);
-}
-
-function deletePost(id) {
-  alert(`Função de exclusão para ID: ${id} ainda será implementada.`);
-}
-
-// Exporta funções globais para os botões inline
+// Exporta funções globais
 window.startEdit = startEdit;
 window.deletePost = deletePost;

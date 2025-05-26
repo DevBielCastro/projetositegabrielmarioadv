@@ -1,34 +1,32 @@
 // server.js
-// Arquivo principal do servidor backend
+// Arquivo principal do servidor backend com Express + MongoDB
 
-require('dotenv').config({ path: __dirname + '/.env' });
-console.log('DEBUG server.js → MONGODB_URI =', process.env.MONGODB_URI);
+require('dotenv').config({ path: './.env' }); // Carrega variáveis de ambiente no início
 
 const express = require('express');
-const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
+const multer = require('multer');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
-const limitarRequisicoes = require('express-rate-limit');
-const protecaoCabecalhos = require('helmet');
+const helmet = require('helmet');
 const morgan = require('morgan');
-const fs = require('fs');
+const rateLimit = require('express-rate-limit');
 
-// Conexão com o banco de dados MongoDB
 const conectarAoBancoDeDados = require('./database');
 
-const aplicativo = express();
+const app = express();
 const porta = process.env.PORT || 5500;
 
-// ==================== CONFIGURAÇÕES DE LOGS ====================
-const caminhoParaPastaDeLogs = path.join(__dirname, 'logs');
-if (!fs.existsSync(caminhoParaPastaDeLogs)) fs.mkdirSync(caminhoParaPastaDeLogs);
+// ================== LOGS ==================
+const pastaDeLogs = path.join(__dirname, 'logs');
+if (!fs.existsSync(pastaDeLogs)) fs.mkdirSync(pastaDeLogs);
 
-const fluxoLogAcesso = fs.createWriteStream(path.join(caminhoParaPastaDeLogs, 'access.log'), { flags: 'a' });
-const fluxoLogSeguranca = fs.createWriteStream(path.join(caminhoParaPastaDeLogs, 'security.log'), { flags: 'a' });
+const logAcesso = fs.createWriteStream(path.join(pastaDeLogs, 'access.log'), { flags: 'a' });
+const logErros = fs.createWriteStream(path.join(pastaDeLogs, 'security.log'), { flags: 'a' });
 
-// ==================== MIDDLEWARES DE SEGURANÇA ====================
-aplicativo.use(protecaoCabecalhos({
+// ================== SEGURANÇA ==================
+app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
@@ -40,87 +38,85 @@ aplicativo.use(protecaoCabecalhos({
   }
 }));
 
-aplicativo.use(cors({
+app.use(cors({
   origin: ['http://localhost:5500', 'http://192.168.0.7:5500'],
   credentials: true
 }));
 
-// ==================== MIDDLEWARES GERAIS ====================
-aplicativo.use(express.json());
-aplicativo.use(cookieParser());
-aplicativo.use(express.static(__dirname));
-aplicativo.use('/uploads', express.static('uploads'));
+// ================== MIDDLEWARES ==================
+app.use(express.json());
+app.use(cookieParser());
 
-// Rotas estáticas adicionais necessárias para funcionar o front corretamente
-aplicativo.use('/assets', express.static(path.join(__dirname, 'assets')));
-aplicativo.use('/blog', express.static(path.join(__dirname, 'blog')));
+// Arquivos estáticos (frontend)
+app.use(express.static(path.join(__dirname)));
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
+app.use('/blog', express.static(path.join(__dirname, 'blog')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// ==================== LIMITE DE REQUISIÇÕES ====================
-const configuracaoLimite = limitarRequisicoes({
+// ================== LIMITADOR DE REQUISIÇÕES ==================
+const limiteDeRequisicoes = rateLimit({
   windowMs: 60 * 1000,
   max: 1000,
-  message: 'Muitas requisições deste IP - tente novamente mais tarde',
-  skip: (requisicao) => ['::1', '127.0.0.1'].includes(requisicao.ip)
+  message: 'Muitas requisições - tente novamente mais tarde.',
+  skip: req => ['::1', '127.0.0.1'].includes(req.ip)
 });
-aplicativo.use('/api/', configuracaoLimite);
+app.use('/api/', limiteDeRequisicoes);
 
-// ==================== LOGS DE ACESSO E SEGURANÇA ====================
-aplicativo.use(morgan('combined', { stream: fluxoLogAcesso }));
+// ================== LOGS ==================
+app.use(morgan('combined', { stream: logAcesso }));
 
-aplicativo.use((requisicao, resposta, proximo) => {
-  resposta.on('finish', () => {
-    if (resposta.statusCode >= 400) {
-      fluxoLogSeguranca.write(
-        `[${new Date().toISOString()}] ${requisicao.ip} ${requisicao.method} ${requisicao.url} ${resposta.statusCode}\n`
-      );
+app.use((req, res, next) => {
+  res.on('finish', () => {
+    if (res.statusCode >= 400) {
+      logErros.write(`[${new Date().toISOString()}] ${req.ip} ${req.method} ${req.originalUrl} ${res.statusCode}\n`);
     }
   });
-  proximo();
+  next();
 });
 
-// ==================== CONEXÃO COM BANCO DE DADOS ====================
+// ================== CONEXÃO COM BANCO ==================
 conectarAoBancoDeDados();
 
-// ==================== CARREGAMENTO DE MODELOS ====================
-require('./api/models/post'); // Modelo de postagens
+// ================== MODELOS ==================
+require('./api/models/post');
 
-// ==================== CONFIGURAÇÃO DE UPLOAD ====================
-const configuracaoUpload = multer({
+// ================== UPLOAD ==================
+const upload = multer({
   storage: multer.diskStorage({
     destination: 'uploads/',
-    filename: (requisicao, arquivo, callback) => {
-      callback(null, Date.now() + path.extname(arquivo.originalname));
+    filename: (req, file, cb) => {
+      cb(null, Date.now() + path.extname(file.originalname));
     }
   }),
   limits: { fileSize: 10 * 1024 * 1024 } // 10MB
 });
 
-// ==================== ROTAS DE API ====================
-aplicativo.post('/api/auth', require('./api/auth'));
-aplicativo.use('/api/posts', require('./api/posts')(configuracaoUpload));
+// ================== ROTAS DE API ==================
+app.post('/api/auth', require('./api/auth'));
+app.use('/api/posts', require('./api/posts')(upload));
 
-// Upload de imagens
-aplicativo.post('/api/upload', configuracaoUpload.single('image'), (requisicao, resposta) => {
-  if (!requisicao.file) return resposta.status(400).json({ erro: 'Nenhuma imagem enviada' });
-  resposta.json({ url: `/uploads/${requisicao.file.filename}` });
+app.post('/api/upload', upload.single('image'), (req, res) => {
+  if (!req.file) return res.status(400).json({ erro: 'Nenhuma imagem enviada.' });
+  res.json({ url: `/uploads/${req.file.filename}` });
 });
 
-// ==================== ROTAS ESTÁTICAS ====================
-aplicativo.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
-aplicativo.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
-aplicativo.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
-aplicativo.get('/blog/post.html', (req, res) => res.sendFile(path.join(__dirname, 'blog/post.html'))); // garante o funcionamento direto
+// ================== ROTAS ESTÁTICAS ==================
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
+app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
+app.get('/blog/post.html', (req, res) => res.sendFile(path.join(__dirname, 'blog/post.html')));
 
-// ==================== TRATAMENTO DE ERROS ====================
-aplicativo.use((req, res) => res.status(404).sendFile(path.join(__dirname, '404.html')));
-aplicativo.use((erro, req, res, proximo) => {
+// ================== ERROS ==================
+app.use((req, res) => res.status(404).sendFile(path.join(__dirname, '404.html')));
+
+app.use((erro, req, res, next) => {
   console.error(erro.stack);
-  fluxoLogSeguranca.write(`[${new Date().toISOString()}] ERRO ${erro.stack}\n`);
+  logErros.write(`[${new Date().toISOString()}] ERRO ${erro.stack}\n`);
   res.status(500).sendFile(path.join(__dirname, '500.html'));
 });
 
-// ==================== INICIALIZAÇÃO DO SERVIDOR ====================
-aplicativo.listen(porta, () => {
-  console.log(`🚀 Servidor rodando em http://localhost:${porta}`);
-  console.log(`📁 Logs de acesso: ${path.join(caminhoParaPastaDeLogs, 'access.log')}`);
+// ================== INICIALIZAÇÃO ==================
+app.listen(porta, () => {
+  console.log(`✅ Servidor iniciado em: http://localhost:${porta}`);
+  console.log(`📄 Logs em: ${pastaDeLogs}`);
 });

@@ -1,29 +1,26 @@
 // database.js
-// Configuração de conexão com MongoDB utilizando Mongoose em conformidade com boas práticas de código limpo
+// Módulo de conexão com MongoDB usando Mongoose em conformidade com boas práticas
 
 const mongoose = require('mongoose');
 
-// URI de conexão extraída das variáveis de ambiente
+// URI de conexão obtida a partir do arquivo .env
 const uriMongoDB = process.env.MONGODB_URI;
 
-// Validação da existência da variável de ambiente
+// Verificação de segurança: URI deve estar definida
 if (!uriMongoDB) {
-  console.error('❌ Variável de ambiente MONGODB_URI não definida.');
+  console.error('❌ Erro: MONGODB_URI não definida nas variáveis de ambiente.');
   process.exit(1);
 }
 
 /**
- * Estabelece conexão com o MongoDB.
+ * Estabelece a conexão com o banco de dados MongoDB.
  */
 async function conectarAoBancoDeDados() {
   try {
-    await mongoose.connect(uriMongoDB, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    console.log('✅ Conexão com o MongoDB estabelecida com sucesso.');
+    await mongoose.connect(uriMongoDB);
+    console.log('✅ Conectado ao MongoDB com sucesso.');
   } catch (erro) {
-    console.error('❌ Falha ao conectar ao MongoDB:', erro.message);
+    console.error('❌ Falha na conexão com o MongoDB:', erro.message);
     process.exit(1);
   }
 }
