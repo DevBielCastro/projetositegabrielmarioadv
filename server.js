@@ -3,6 +3,7 @@
 
 require('dotenv').config({ path: __dirname + '/.env' });
 console.log('DEBUG server.js → MONGODB_URI =', process.env.MONGODB_URI);
+
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
@@ -49,6 +50,10 @@ aplicativo.use(express.json());
 aplicativo.use(cookieParser());
 aplicativo.use(express.static(__dirname));
 aplicativo.use('/uploads', express.static('uploads'));
+
+// Rotas estáticas adicionais necessárias para funcionar o front corretamente
+aplicativo.use('/assets', express.static(path.join(__dirname, 'assets')));
+aplicativo.use('/blog', express.static(path.join(__dirname, 'blog')));
 
 // ==================== LIMITE DE REQUISIÇÕES ====================
 const configuracaoLimite = limitarRequisicoes({
@@ -104,6 +109,7 @@ aplicativo.post('/api/upload', configuracaoUpload.single('image'), (requisicao, 
 aplicativo.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 aplicativo.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
 aplicativo.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
+aplicativo.get('/blog/post.html', (req, res) => res.sendFile(path.join(__dirname, 'blog/post.html'))); // garante o funcionamento direto
 
 // ==================== TRATAMENTO DE ERROS ====================
 aplicativo.use((req, res) => res.status(404).sendFile(path.join(__dirname, '404.html')));

@@ -1,37 +1,65 @@
-<script>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Artigo | Gabriel Mário Adv</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <!-- FontAwesome (se usar ícones) -->
+  <script src="https://kit.fontawesome.com/SEU_KIT.js" crossorigin="anonymous"></script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+  <!-- Container onde o conteúdo será injetado -->
+  <main id="post-content" class="px-4 py-8 max-w-3xl mx-auto"></main>
+
+  <script>
     document.addEventListener('DOMContentLoaded', async () => {
-      const loadPost = async () => {
-        try {
-          const response = await fetch('/blog/posts.json');
-          const data = await response.json();
-          const postId = new URLSearchParams(window.location.search).get('id');
-          const post = data.posts.find(p => p.id === postId);
-    
-          if(post) {
-            document.title = post.title + ' | Gabriel Mário Adv';
-            document.getElementById('post-content').innerHTML = `
-              <div class="mb-8">
-                <img src="${post.thumbnail}" alt="${post.title}" class="rounded-lg shadow-xl w-full h-64 object-cover">
-              </div>
-              <h1 class="font-serif text-3xl md:text-4xl text-accent mb-4">${post.title}</h1>
-              <div class="flex items-center text-sm text-gray-600 mb-6">
-                <span class="mr-4"><i class="fas fa-calendar-alt mr-2"></i>${post.date}</span>
-                <span class="bg-accent/10 text-accent px-3 py-1 rounded-full">${post.category}</span>
-              </div>
-              <div class="prose max-w-none">${post.content}</div>
-            `;
-          }
-        } catch (error) {
-          console.error('Erro ao carregar artigo:', error);
+      try {
+        const resp = await fetch('/blog/posts.json');
+        if (!resp.ok) throw new Error('JSON não encontrado');
+        const { posts } = await resp.json();
+        const id = new URLSearchParams(location.search).get('id');
+        const post = posts.find(p => p.id === id);
+
+        if (!post) {
           document.getElementById('post-content').innerHTML = `
             <div class="text-center py-12">
               <h2 class="text-2xl text-accent mb-4">Artigo não encontrado</h2>
-              <p class="text-gray-600">O artigo solicitado não está disponível no momento.</p>
-            </div>
-          `;
+              <p class="text-gray-600">Tente outro ID.</p>
+            </div>`;
+          return;
         }
-      };
-    
-      loadPost();
+
+        document.title = post.title + ' | Gabriel Mário Adv';
+        document.getElementById('post-content').innerHTML = `
+          <div class="mb-8">
+            <img src="${post.thumbnail}" alt="${post.title}"
+                 class="rounded-lg shadow-xl w-full h-64 object-cover">
+          </div>
+          <h1 class="font-serif text-3xl md:text-4xl text-accent mb-4">
+            ${post.title}
+          </h1>
+          <div class="flex items-center text-sm text-gray-600 mb-6">
+            <span class="mr-4">
+              <i class="fas fa-calendar-alt mr-2"></i>${post.date}
+            </span>
+            <span class="bg-accent/10 text-accent px-3 py-1 rounded-full">
+              ${post.category}
+            </span>
+          </div>
+          <article class="prose max-w-none">
+            ${post.content}
+          </article>
+        `;
+      } catch (e) {
+        console.error(e);
+        document.getElementById('post-content').innerHTML = `
+          <div class="text-center py-12">
+            <h2 class="text-2xl text-red-500 mb-4">Erro ao carregar artigo</h2>
+            <p class="text-gray-600">${e.message}</p>
+          </div>`;
+      }
     });
-    </script>
+  </script>
+</body>
+</html>

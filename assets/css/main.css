@@ -253,3 +253,26 @@ footer .fa-tree {
         object-fit: cover;
     }
 }
+
+/* ========================
+   Botão de Envio no Admin
+   ======================== */
+.botao-enviar {
+    background-color: #8B4513;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    display: block;
+    margin: 2rem auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.botao-enviar:hover {
+    background-color: #A0522D;
+    transform: scale(1.03);
+}
