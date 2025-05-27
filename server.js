@@ -1,7 +1,9 @@
 // server.js
-// Arquivo principal do servidor backend com Express + MongoDB
+// Ponto de entrada principal para o servidor backend.
+// Anotações sobre o server.js para referência:
 
-require('dotenv').config({ path: './.env' }); // Carrega variáveis de ambiente no início
+// Carrega as variáveis de ambiente do arquivo .env, fundamental para configurações.
+require('dotenv').config({ path: './.env' });
 
 const express = require('express');
 const path = require('path');
@@ -16,107 +18,159 @@ const rateLimit = require('express-rate-limit');
 const conectarAoBancoDeDados = require('./database');
 
 const app = express();
-const porta = process.env.PORT || 5500;
+const porta = process.env.PORT || 3000; // Conforme suas screenshots
 
-// ================== LOGS ==================
+// --- CONFIGURAÇÃO DE LOGS EM ARQUIVO ---
 const pastaDeLogs = path.join(__dirname, 'logs');
-if (!fs.existsSync(pastaDeLogs)) fs.mkdirSync(pastaDeLogs);
+// Assegura que a pasta 'logs' exista antes de qualquer tentativa de escrita.
+if (!fs.existsSync(pastaDeLogs)) {
+  fs.mkdirSync(pastaDeLogs);
+}
 
-const logAcesso = fs.createWriteStream(path.join(pastaDeLogs, 'access.log'), { flags: 'a' });
-const logErros = fs.createWriteStream(path.join(pastaDeLogs, 'security.log'), { flags: 'a' });
+const fluxoLogRequisicoes = fs.createWriteStream(path.join(pastaDeLogs, 'requisicoes.log'), { flags: 'a' });
+const fluxoLogErrosServidor = fs.createWriteStream(path.join(pastaDeLogs, 'erros_seguranca.log'), { flags: 'a' });
 
-// ================== SEGURANÇA ==================
+// --- MIDDLEWARES DE SEGURANÇA ---
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "cdn.tailwindcss.com"],
-      styleSrc: ["'self'", "'unsafe-inline'", "cdnjs.cloudflare.com"],
-      imgSrc: ["'self'", "data:", "blob:"],
-      connectSrc: ["'self'"]
+      scriptSrc: [
+        "'self'",
+        "'unsafe-inline'", // Para Tailwind config no HTML, e outros scripts inline se houver.
+        "'unsafe-eval'",   // ESSENCIAL: Para Alpine.js processar x-data, @click, etc. no HTML.
+        "cdn.tailwindcss.com",
+        "https://unpkg.com", // Para Alpine.js e AOS
+        "https://kit.fontawesome.com" // Para kit JS do FontAwesome, se usado
+      ],
+      scriptSrcAttr: ["'unsafe-inline'"], // Para onclick="..." no admin.html
+      styleSrc: [
+        "'self'",
+        "'unsafe-inline'", // Para estilos inline, se houver.
+        "cdnjs.cloudflare.com", // Para CSS do Font Awesome
+        "https://unpkg.com",    // Para CSS do AOS
+        "https://fonts.googleapis.com" // Para Google Fonts
+      ],
+      fontSrc: [
+        "'self'",
+        "https://fonts.gstatic.com", // Para Google Fonts
+        "https://cdnjs.cloudflare.com" // Para arquivos de fonte do Font Awesome (via CSS do cdnjs)
+      ],
+      imgSrc: ["'self'", "data:", "blob:"], // Permite imagens da própria origem, data URLs e blobs.
+      connectSrc: ["'self'"], // Permite conexões (fetch, XHR) para a própria origem.
+      frameAncestors: ["'none'"], // Impede que o site seja embutido em iframes de outras origens.
+      formAction: ["'self'"]      // Permite que formulários enviem dados apenas para a própria origem.
     }
   }
 }));
 
 app.use(cors({
-  origin: ['http://localhost:5500', 'http://192.168.0.7:5500'],
+  origin: ['http://localhost:5500', `http://localhost:${porta}`, 'http://127.0.0.1:5500', `http://127.0.0.1:${porta}`],
   credentials: true
 }));
 
-// ================== MIDDLEWARES ==================
+// --- MIDDLEWARES ESSENCIAIS ---
 app.use(express.json());
 app.use(cookieParser());
 
-// Arquivos estáticos (frontend)
-app.use(express.static(path.join(__dirname)));
+// --- SERVIR ARQUIVOS ESTÁTICOS ---
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 app.use('/blog', express.static(path.join(__dirname, 'blog')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// ================== LIMITADOR DE REQUISIÇÕES ==================
-const limiteDeRequisicoes = rateLimit({
-  windowMs: 60 * 1000,
-  max: 1000,
-  message: 'Muitas requisições - tente novamente mais tarde.',
-  skip: req => ['::1', '127.0.0.1'].includes(req.ip)
+// --- LIMITADOR DE REQUISIÇÕES (Rate Limiting) ---
+const limiteDeRequisicoesApi = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 500,
+  message: { erro: 'Muitas requisições originadas deste IP, por favor, tente novamente após 15 minutos.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (requisicao) => ['::1', '127.0.0.1'].includes(requisicao.ip)
 });
-app.use('/api/', limiteDeRequisicoes);
+app.use('/api/', limiteDeRequisicoesApi);
 
-// ================== LOGS ==================
-app.use(morgan('combined', { stream: logAcesso }));
+// --- LOGGING DE REQUISIÇÕES HTTP (Morgan) ---
+app.use(morgan('combined', { stream: fluxoLogRequisicoes }));
 
-app.use((req, res, next) => {
-  res.on('finish', () => {
-    if (res.statusCode >= 400) {
-      logErros.write(`[${new Date().toISOString()}] ${req.ip} ${req.method} ${req.originalUrl} ${res.statusCode}\n`);
+app.use((requisicao, resposta, proximo) => {
+  resposta.on('finish', () => {
+    if (resposta.statusCode >= 400) {
+      const logMensagem = `[${new Date().toISOString()}] IP: ${requisicao.ip} - ${requisicao.method} ${requisicao.originalUrl} - Status: ${resposta.statusCode} - Agente: ${requisicao.get('User-Agent')}\n`;
+      fluxoLogErrosServidor.write(logMensagem);
     }
   });
-  next();
+  proximo();
 });
 
-// ================== CONEXÃO COM BANCO ==================
+// --- CONEXÃO COM O BANCO DE DADOS ---
 conectarAoBancoDeDados();
 
-// ================== MODELOS ==================
+// --- CARREGAR MODELOS (Schemas do Mongoose) ---
 require('./api/models/post');
 
-// ================== UPLOAD ==================
-const upload = multer({
-  storage: multer.diskStorage({
-    destination: 'uploads/',
-    filename: (req, file, cb) => {
-      cb(null, Date.now() + path.extname(file.originalname));
-    }
-  }),
-  limits: { fileSize: 10 * 1024 * 1024 } // 10MB
+// --- CONFIGURAÇÃO DO MULTER (Upload de Arquivos) ---
+const armazenamentoDeUploads = multer.diskStorage({
+  destination: (requisicao, arquivo, callback) => {
+    callback(null, 'uploads/');
+  },
+  filename: (requisicao, arquivo, callback) => {
+    callback(null, Date.now() + path.extname(arquivo.originalname));
+  }
 });
 
-// ================== ROTAS DE API ==================
-app.post('/api/auth', require('./api/auth'));
-app.use('/api/posts', require('./api/posts')(upload));
-
-app.post('/api/upload', upload.single('image'), (req, res) => {
-  if (!req.file) return res.status(400).json({ erro: 'Nenhuma imagem enviada.' });
-  res.json({ url: `/uploads/${req.file.filename}` });
+const uploadConfigurado = multer({
+  storage: armazenamentoDeUploads,
+  limits: { fileSize: 10 * 1024 * 1024 }
 });
 
-// ================== ROTAS ESTÁTICAS ==================
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
-app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
-app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
-app.get('/blog/post.html', (req, res) => res.sendFile(path.join(__dirname, 'blog/post.html')));
+// --- ROTAS DA API ---
+app.use('/api/auth', require('./api/auth'));
+app.use('/api/posts', require('./api/posts')(uploadConfigurado));
 
-// ================== ERROS ==================
-app.use((req, res) => res.status(404).sendFile(path.join(__dirname, '404.html')));
-
-app.use((erro, req, res, next) => {
-  console.error(erro.stack);
-  logErros.write(`[${new Date().toISOString()}] ERRO ${erro.stack}\n`);
-  res.status(500).sendFile(path.join(__dirname, '500.html'));
+app.post('/api/upload', uploadConfigurado.single('image'), (requisicao, resposta) => {
+  if (!requisicao.file) {
+    return resposta.status(400).json({ erro: 'Nenhuma imagem foi enviada.' });
+  }
+  resposta.json({ url: `/uploads/${requisicao.file.filename}` });
 });
 
-// ================== INICIALIZAÇÃO ==================
+// --- ROTAS PARA SERVIR ARQUIVOS HTML PRINCIPAIS ---
+app.get('/', (requisicao, resposta) => resposta.sendFile(path.join(__dirname, 'index.html')));
+app.get('/login', (requisicao, resposta) => resposta.sendFile(path.join(__dirname, 'login.html')));
+
+app.get('/admin.html', (requisicao, resposta) => {
+  resposta.sendFile(path.join(__dirname, 'admin.html'));
+});
+app.get('/admin', (requisicao, resposta) => {
+  resposta.sendFile(path.join(__dirname, 'admin.html'));
+});
+
+app.get('/blog/post.html', (requisicao, resposta) => resposta.sendFile(path.join(__dirname, 'blog', 'post.html')));
+
+// --- TRATAMENTO DE ERROS ---
+app.use((requisicao, resposta) => {
+  resposta.status(404).sendFile(path.join(__dirname, '404.html'));
+});
+
+app.use((erro, requisicao, resposta, proximo) => {
+  console.error('Ocorreu um erro no servidor:', erro.stack);
+  fluxoLogErrosServidor.write(`[${new Date().toISOString()}] ERRO GRAVE: ${erro.stack}\n`);
+  const mensagemCliente = process.env.NODE_ENV === 'development' ? erro.message : 'Ocorreu um erro interno no servidor. Por favor, tente mais tarde.';
+  if (resposta.headersSent) {
+    return proximo(erro);
+  }
+  const caminhoPagina500 = path.join(__dirname, '500.html');
+  if (fs.existsSync(caminhoPagina500)) {
+    resposta.status(500).sendFile(caminhoPagina500);
+  } else {
+    resposta.status(500).json({ erro: mensagemCliente });
+  }
+});
+
+// --- INICIALIZAÇÃO DO SERVIDOR ---
 app.listen(porta, () => {
-  console.log(`✅ Servidor iniciado em: http://localhost:${porta}`);
-  console.log(`📄 Logs em: ${pastaDeLogs}`);
+  console.log(`✅ Servidor Node.js iniciado.`);
+  console.log(`🚀 Escutando em: http://localhost:${porta}`);
+  console.log(`📝 Logs de requisições: ${path.join(pastaDeLogs, 'requisicoes.log')}`);
+  console.log(`🚨 Logs de erros: ${path.join(pastaDeLogs, 'erros_seguranca.log')}`);
 });

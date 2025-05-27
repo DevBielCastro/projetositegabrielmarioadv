@@ -1,65 +1,185 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="scroll-smooth">
 <head>
-  <meta charset="UTF-8">
-  <title>Artigo | Gabriel Mário Adv</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="/assets/css/main.css">
-  <!-- FontAwesome (se usar ícones) -->
-  <script src="https://kit.fontawesome.com/SEU_KIT.js" crossorigin="anonymous"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artigo | Gabriel Mário Advocacia</title>
+
+    <meta name="description" content="Leia o artigo completo no site de Gabriel Mário Advocacia.">
+    <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="/assets/css/main.css">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primaria: '#1a1a1a',
+                        destaque: '#8B4513',
+                        ouro: '#d4af37'
+                    },
+                    fontFamily: {
+                        sans: ['Open Sans', 'sans-serif'],
+                        serif: ['Merriweather', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .conteudo-artigo h1, .conteudo-artigo h2, .conteudo-artigo h3 {
+            font-family: 'Merriweather', serif;
+            color: #8B4513;
+            margin-bottom: 0.5em;
+            margin-top: 1em;
+        }
+        .conteudo-artigo p {
+            font-family: 'Open Sans', sans-serif;
+            line-height: 1.7;
+            margin-bottom: 1em;
+        }
+        .conteudo-artigo a {
+            color: #8B4513;
+            text-decoration: underline;
+        }
+        .conteudo-artigo a:hover {
+            color: #d4af37;
+        }
+        .conteudo-artigo img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            margin-top: 1em;
+            margin-bottom: 1em;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        }
+        .breadcrumbs a { color: #8B4513; }
+        .breadcrumbs span { color: #6b7280; }
+    </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
-  <!-- Container onde o conteúdo será injetado -->
-  <main id="post-content" class="px-4 py-8 max-w-3xl mx-auto"></main>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-      try {
-        const resp = await fetch('/blog/posts.json');
-        if (!resp.ok) throw new Error('JSON não encontrado');
-        const { posts } = await resp.json();
-        const id = new URLSearchParams(location.search).get('id');
-        const post = posts.find(p => p.id === id);
+<body class="bg-gray-100 font-sans text-gray-800">
 
-        if (!post) {
-          document.getElementById('post-content').innerHTML = `
-            <div class="text-center py-12">
-              <h2 class="text-2xl text-accent mb-4">Artigo não encontrado</h2>
-              <p class="text-gray-600">Tente outro ID.</p>
-            </div>`;
-          return;
+    <nav class="bg-primaria text-white shadow-md sticky top-0 z-40">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex justify-between items-center">
+            <a href="/index.html" class="text-ouro hover:text-destaque transition-colors text-lg font-semibold" aria-label="Voltar para a página inicial">
+                <img src="/assets/img/logo-dourada-transparente.webp" alt="Logotipo Gabriel Mário Advocacia" class="h-16 md:h-20 w-auto">
+            </a>
+            <a href="/index.html#blog" class="text-sm text-ouro hover:text-destaque transition-colors inline-flex items-center">
+                <i class="fas fa-arrow-left mr-2" aria-hidden="true"></i> Voltar para Artigos
+            </a>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <div id="conteudoDoPostAqui" class="min-h-[60vh]">
+            <p class="text-center text-gray-600 py-10 text-lg">Carregando artigo...</p>
+        </div>
+    </main>
+
+    <footer class="bg-primaria text-gray-400 text-center py-8 text-xs mt-12 border-t border-gray-700">
+        <p>&copy; <span id="anoAtualRodapePost"></span> Gabriel Mário Advocacia. Todos os direitos reservados.</p>
+        <p class="mt-1">Desenvolvido por <a href="https://bieldev.com.br/" target="_blank" rel="noopener noreferrer" class="hover:text-ouro underline">Biel CASTRO - Dev Web FullStack</a></p>
+    </footer>
+
+    <script>
+        async function carregarPostIndividual() {
+            const containerPost = document.getElementById('conteudoDoPostAqui');
+            if (!containerPost) {
+                console.error("Elemento #conteudoDoPostAqui não encontrado no DOM.");
+                return;
+            }
+
+            try {
+                const parametrosUrl = new URLSearchParams(window.location.search);
+                const slugDoPost = parametrosUrl.get('slug');
+                
+                if (!slugDoPost || slugDoPost.trim() === '') {
+                    throw new Error('Slug do artigo não especificado ou inválido na URL.');
+                }
+
+                const urlApi = `/api/posts/public/slug/${slugDoPost}`;
+                const respostaApi = await fetch(urlApi);
+
+                if (respostaApi.status === 404) {
+                    throw new Error('Artigo não encontrado ou não está publicado.');
+                }
+                if (!respostaApi.ok) {
+                    const dadosErro = await respostaApi.json().catch(() => ({ erro: 'Não foi possível processar a resposta de erro da API.' }));
+                    throw new Error(dadosErro.erro || `Erro HTTP ${respostaApi.status} ao buscar o artigo.`);
+                }
+
+                const post = await respostaApi.json();
+
+                document.title = `${post.title || 'Artigo'} | Gabriel Mário Advocacia`;
+
+                const metaDescription = document.querySelector('meta[name="description"]');
+                if (metaDescription && post.excerpt) {
+                    metaDescription.setAttribute('content', post.excerpt);
+                }
+
+                const dataPublicacao = new Date(post.createdAt).toLocaleDateString('pt-BR', {
+                    day: '2-digit', month: 'long', year: 'numeric',
+                });
+
+                containerPost.innerHTML = `
+                    <article class="max-w-3xl mx-auto bg-white p-6 sm:p-8 md:p-10 rounded-lg shadow-xl">
+                        <div class="mb-6 text-xs sm:text-sm text-gray-500 breadcrumbs">
+                            <a href="/index.html" class="hover:underline">Início</a> &raquo;
+                            <a href="/index.html#blog" class="hover:underline">Artigos</a> &raquo;
+                            <span class="font-medium text-gray-700">${post.title}</span>
+                        </div>
+
+                        ${post.thumbnail ? `<img src="${post.thumbnail}" alt="Imagem de capa para o artigo ${post.title}" class="w-full h-auto max-h-[400px] object-cover rounded-lg mb-6 md:mb-8 shadow-md">` : ''}
+                        
+                        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-destaque font-serif mb-4">${post.title}</h1>
+                        
+                        <div class="text-xs sm:text-sm text-gray-500 mb-6 border-b border-gray-200 pb-4">
+                            <span>Publicado em: ${dataPublicacao}</span> | 
+                            <span>Categoria: <strong class="text-destaque">${post.category}</strong></span>
+                        </div>
+                        
+                        <div class="prose prose-lg max-w-none conteudo-artigo text-gray-800">
+                            ${post.content}
+                        </div>
+
+                        <div class="mt-10 pt-6 border-t border-gray-200 text-center">
+                            <a href="/index.html#blog" class="inline-flex items-center bg-destaque text-white text-sm font-medium px-6 py-3 rounded-md hover:bg-ouro hover:text-primaria transition-colors duration-300 shadow-sm hover:shadow-md">
+                                <i class="fas fa-arrow-left mr-2" aria-hidden="true"></i> Voltar para todos os artigos
+                            </a>
+                        </div>
+                    </article>
+                `;
+
+            } catch (erro) {
+                console.error('Erro ao carregar o post individual:', erro);
+                containerPost.innerHTML = `
+                    <div class="text-center py-12 max-w-xl mx-auto bg-white p-8 rounded-lg shadow-md">
+                        <i class="fas fa-exclamation-triangle fa-3x text-red-400 mb-4"></i>
+                        <h2 class="text-2xl font-semibold text-red-600 mb-3">Erro ao Carregar Artigo</h2>
+                        <p class="text-gray-600 mb-6">${erro.message}</p>
+                        <a href="/index.html#blog" class="inline-block text-destaque hover:text-ouro underline transition-colors">Ver outros artigos</a>
+                    </div>
+                `;
+            }
         }
 
-        document.title = post.title + ' | Gabriel Mário Adv';
-        document.getElementById('post-content').innerHTML = `
-          <div class="mb-8">
-            <img src="${post.thumbnail}" alt="${post.title}"
-                 class="rounded-lg shadow-xl w-full h-64 object-cover">
-          </div>
-          <h1 class="font-serif text-3xl md:text-4xl text-accent mb-4">
-            ${post.title}
-          </h1>
-          <div class="flex items-center text-sm text-gray-600 mb-6">
-            <span class="mr-4">
-              <i class="fas fa-calendar-alt mr-2"></i>${post.date}
-            </span>
-            <span class="bg-accent/10 text-accent px-3 py-1 rounded-full">
-              ${post.category}
-            </span>
-          </div>
-          <article class="prose max-w-none">
-            ${post.content}
-          </article>
-        `;
-      } catch (e) {
-        console.error(e);
-        document.getElementById('post-content').innerHTML = `
-          <div class="text-center py-12">
-            <h2 class="text-2xl text-red-500 mb-4">Erro ao carregar artigo</h2>
-            <p class="text-gray-600">${e.message}</p>
-          </div>`;
-      }
-    });
-  </script>
+        document.addEventListener('DOMContentLoaded', () => {
+            carregarPostIndividual();
+
+            const elementoAnoAtualPost = document.getElementById('anoAtualRodapePost');
+            if (elementoAnoAtualPost) {
+                elementoAnoAtualPost.textContent = new Date().getFullYear();
+            }
+        });
+    </script>
+
 </body>
 </html>

@@ -4,36 +4,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gabriel Mário - Advogado Especialista</title>
+    <title>Gabriel Mário - Advogado Especialista em Direito Estratégico</title>
 
-    <!-- SEO -->
-    <meta name="description"
-        content="Advogado especialista em Direito Estratégico com atuação nacional em Saúde, Imobiliário e Previdenciário">
-    <meta name="keywords"
-        content="advogado, direito médico, regularização imobiliária, previdenciário, contratos, OAB/PB34172">
+    <meta name="description" content="Advogado especialista em Direito Estratégico com atuação nacional em Saúde, Imobiliário e Previdenciário. Soluções jurídicas personalizadas e eficientes em João Pessoa e online.">
+    <meta name="keywords" content="advogado, direito médico, regularização imobiliária, direito previdenciário, contratos, OAB/PB34172, Gabriel Mário, advogado João Pessoa, direito estratégico, advocacia Paraíba">
+    <meta name="author" content="Gabriel Mário">
+    <link rel="canonical" href="https://www.SEU_DOMINIO_AQUI.com.br/"> <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
 
-    <!-- Fontes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Open+Sans:wght@400;600&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/main.css">
 
-    <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#1a1a1a',
-                        accent: '#8B4513',
-                        gold: '#d4af37'
+                        primaria: '#1a1a1a',
+                        destaque: '#8B4513',
+                        ouro: '#d4af37'
                     },
                     fontFamily: {
                         sans: ['Open Sans', 'sans-serif'],
@@ -43,337 +37,283 @@
             }
         }
     </script>
+    <style>
+        /* Ajuda a prevenir o "flash" de conteúdo Alpine antes da inicialização, especialmente para x-show e x-collapse */
+        [x-cloak] { display: none !important; }
+    </style>
 </head>
 
-<body class="bg-gray-50 font-sans">
+<body class="bg-gray-50 font-sans text-gray-700 antialiased">
 
-    <main>
-        <!-- Navbar -->
-        <nav class="fixed w-full bg-primary/90 backdrop-blur z-50">
-            <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-                <img src="assets/img/logo-dourada-transparente.webp" alt="Gabriel Mário Advogado" class="h-24 w-auto">
-                <div class="hidden md:flex space-x-8">
-                    <a href="#sobre" class="text-gold hover:text-accent transition">Sobre</a>
-                    <a href="#atuacao" class="text-gold hover:text-accent transition">Atuação</a>
-                    <a href="#blog" class="text-gold hover:text-accent transition">Artigos</a>
-                    <a href="#contato" class="text-gold hover:text-accent transition">Contato</a>
+    <nav class="fixed w-full bg-primaria/95 backdrop-blur-md shadow-lg z-50 transition-all duration-300" id="navbarPrincipal">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-3">
+                <a href="#" aria-label="Página inicial - Gabriel Mário Advocacia">
+                    <img src="/assets/img/logo-dourada-transparente.webp" alt="Logotipo Gabriel Mário Advocacia" class="h-20 md:h-24 w-auto transition-transform duration-300 hover:scale-105">
+                </a>
+                <div class="hidden md:flex space-x-6 lg:space-x-8 items-center">
+                    <a href="#sobre" class="text-ouro hover:text-destaque transition-colors duration-300 font-medium px-2 py-1">Sobre Mim</a>
+                    <a href="#atuacao" class="text-ouro hover:text-destaque transition-colors duration-300 font-medium px-2 py-1">Áreas de Atuação</a>
+                    <a href="#blog" class="text-ouro hover:text-destaque transition-colors duration-300 font-medium px-2 py-1">Artigos</a>
+                    <a href="#contato" class="text-ouro hover:text-destaque transition-colors duration-300 font-medium px-2 py-1">Contato</a>
+                </div>
+                <div class="md:hidden">
+                    <button id="botaoMenuMobile" aria-label="Abrir menu de navegação" aria-expanded="false" aria-controls="menuMobileConteudo" class="text-ouro hover:text-destaque focus:outline-none p-2">
+                        <i class="fas fa-bars fa-lg"></i>
+                    </button>
                 </div>
             </div>
-        </nav>
+        </div>
+        <div id="menuMobileConteudo" class="hidden md:hidden bg-primaria border-t border-destaque/50">
+            <a href="#sobre" class="block text-ouro hover:text-destaque px-4 py-3 transition-colors">Sobre Mim</a>
+            <a href="#atuacao" class="block text-ouro hover:text-destaque px-4 py-3 transition-colors">Áreas de Atuação</a>
+            <a href="#blog" class="block text-ouro hover:text-destaque px-4 py-3 transition-colors">Artigos</a>
+            <a href="#contato" class="block text-ouro hover:text-destaque px-4 py-3 transition-colors">Contato</a>
+        </div>
+    </nav>
 
-        <header class="min-h-screen bg-primary flex items-center justify-center pt-20">
-            <div class="container mx-auto px-4 text-center" data-aos="fade-up">
-                <!-- Logo ajustada à largura do texto -->
-                <div class="mb-8 mx-auto max-w-2xl"> <!-- Container com mesma largura máxima do texto -->
-                    <img src="assets/img/logo-dourada-maior-semfundo.webp" alt="Gabriel Mário Advogado"
-                        class="w-full h-auto opacity-90 animate-fade-in">
+    <main>
+        <header class="min-h-screen bg-primaria flex items-center justify-center pt-28 md:pt-36 pb-16 relative overflow-hidden">
+            <div class="absolute inset-0 bg-cover bg-center opacity-5" style="background-image: url('/assets/img/fundo-abstrato-justica.webp');"></div>
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10" data-aos="fade-up" data-aos-delay="100">
+                <div class="mb-6 md:mb-8 mx-auto max-w-lg md:max-w-xl">
+                    <img src="/assets/img/logo-dourada-maior-semfundo.webp" alt="Logotipo Principal Gabriel Mário Advocacia - Direito Estratégico" class="w-full h-auto opacity-90">
                 </div>
-
-                <p class="text-xl md:text-2xl text-gray-200 mb-12 mx-auto max-w-2xl">
-                    Transformando complexidade jurídica em soluções estratégicas
+                <p class="text-lg md:text-xl text-gray-300 mb-10 md:mb-12 mx-auto max-w-2xl font-serif italic">
+                    Transformando complexidade jurídica em soluções estratégicas para você.
                 </p>
-
-                <a href="https://wa.me/558388495076" target="_blank"
-                    class="bg-accent text-white px-8 py-3 rounded-lg hover:bg-gold transition">
-                    <i class="fab fa-whatsapp mr-2"></i>Agendar Consulta
+                <a href="https://wa.me/5583988495076?text=Ol%C3%A1%2C%20Dr.%20Gabriel%20M%C3%A1rio%2C%20vi%20seu%20site%20e%20gostaria%20de%20agendar%20uma%20consulta." target="_blank" rel="noopener noreferrer"
+                   class="inline-flex items-center bg-destaque text-white text-base md:text-lg px-6 py-3 md:px-8 md:py-3.5 rounded-lg shadow-md hover:bg-ouro hover:text-primaria transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-ouro/50 focus:ring-offset-2 focus:ring-offset-primaria">
+                    <i class="fab fa-whatsapp mr-2 fa-fw" aria-hidden="true"></i>Agendar Consulta
                 </a>
             </div>
         </header>
 
-        <!-- Seção Sobre -->
-        <section id="sobre" class="py-20 bg-white">
-            <div class="container mx-auto px-4" data-aos="fade-up">
-                <div class="grid md:grid-cols-2 gap-12 items-start">
-                    <div class="order-2 md:order-1">
-                        <h2 class="text-3xl md:text-4xl font-serif text-accent mb-8 text-center md:text-left">Sobre Mim
-                        </h2>
-                        <div class="prose-lg text-gray-700">
-                            Sou um advogado dedicado de João Pessoa, Paraíba, que valoriza a ética, a personalização
-                            e a busca pela justiça em cada caso que assumo. Minha trajetória reflete uma vivência
-                            marcada pela superação e pelo compromisso em ajudar pessoas a terem seus direitos
-                            reconhecidos e garantidos.
-                            Desde cedo, como estudante de escola pública, fui ativo no Grêmio Estudantil, liderando
-                            pleitos que resultaram em conquistas significativas para melhorias educacionais. Com bolsa
-                            integral do Prouni, graduei-me em Direito enquanto conciliava estudos noturnos com um
-                            intenso período diurno de trabalho e estágios. Essa experiência incluiu colaboração com
-                            cooperativas e microempresas, além de passagens pela Procuradoria Geral do Município de
-                            João Pessoa, Justiça Federal da Paraíba e escritórios de advocacia.
-                            Durante minha graduação, atuei como voluntário no Núcleo de Apoio ao Estagiário da OABPB
-                            (NAE-OAB PB), onde posteriormente integrei a diretoria como Ouvidor e Coordenador
-                            do Eixo Sociourbano, e integrei Interiorização e Comunicação. Essa experiência fortaleceu
-                            minha dedicação ao serviço público e à advocacia, consolidando minha visão humanizada
-                            de atendimento jurídico.
-                            Sou formado em cursos de destaque, como o Curso de Formação de Mediadores e
-                            Conciliadores Judiciais nos parâmetros do Conselho Nacional de Justiça (CNJ), reforçando
-                            meu compromisso com soluções extrajudiciais e consensuais.
-                            Minha vivência pessoal com condições de saúde, como Urticária Crônica Espontânea,
-                            epilepsia e parestesia nos membros esquerdos, me deu uma perspectiva única sobre as
-                            necessidades e desafios enfrentados por pessoas que buscam atendimentos médicos,
-                            medicamentos e tratamentos. Por compreender essas situações "na pele", dedico-me à
-                            defesa dos direitos de pacientes e pessoas com deficiência, sempre buscando atender às
-                            suas demandas de forma empática e eficiente.
-                            Admiro profundamente o Direito e a advocacia, pois acredito que:
-                            • "O advogado é o interlocutor do cidadão para que a justiça não cometa injustiça."
-                            Diante das lutas que enfrentei, atuo com diligência e ética, priorizando resultados que
-                            garantam a defesa dos direitos dos meus clientes e assegurem que suas vozes sejam
-                            ouvidas. Meu compromisso vai além do litígio: ofereço um serviço jurídico personalizado,
-                            focado na resolução de conflitos e na conquista de soluções justas e eficazes.
-                            SINTESE RESUMO
-                            Advogado Especialista em Direito Estratégico
-                            Áreas principais: Saúde | Imobiliário | Previdenciário
-                            Atendimento nacional online, presencial em João Pessoa.
-                        </div>
+        <section id="sobre" class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8" data-aos="fade-up">
+                <div class="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
+                    <div class="order-2 md:order-1 prose prose-lg lg:prose-xl max-w-none text-gray-700">
+                        <h2 class="text-3xl md:text-4xl font-serif text-destaque mb-6 text-center md:text-left">Sobre Mim</h2>
+                        <p>Sou um advogado dedicado de João Pessoa, Paraíba, que valoriza a ética, a personalização e a busca pela justiça em cada caso que assumo. Minha trajetória reflete uma vivência marcada pela superação e pelo compromisso em ajudar pessoas a terem seus direitos reconhecidos e garantidos.</p>
+                        <p>Desde cedo, como estudante de escola pública, fui ativo no Grêmio Estudantil, liderando pleitos que resultaram em conquistas significativas para melhorias educacionais. Com bolsa integral do Prouni, graduei-me em Direito enquanto conciliava estudos noturnos com um intenso período diurno de trabalho e estágios. Essa experiência incluiu colaboração com cooperativas e microempresas, além de passagens pela Procuradoria Geral do Município de João Pessoa, Justiça Federal da Paraíba e escritórios de advocacia.</p>
+                        <p>Durante minha graduação, atuei como voluntário no Núcleo de Apoio ao Estagiário da OABPB (NAE-OAB PB), onde posteriormente integrei a diretoria como Ouvidor e Coordenador do Eixo Sociourbano, e integrei Interiorização e Comunicação. Essa experiência fortaleceu minha dedicação ao serviço público e à advocacia, consolidando minha visão humanizada de atendimento jurídico.</p>
+                        <p>Sou formado em cursos de destaque, como o Curso de Formação de Mediadores e Conciliadores Judiciais nos parâmetros do Conselho Nacional de Justiça (CNJ), reforçando meu compromisso com soluções extrajudiciais e consensuais.</p>
+                        <p>Minha vivência pessoal com condições de saúde, como Urticária Crônica Espontânea, epilepsia e parestesia nos membros esquerdos, me deu uma perspectiva única sobre as necessidades e desafios enfrentados por pessoas que buscam atendimentos médicos, medicamentos e tratamentos. Por compreender essas situações "na pele", dedico-me à defesa dos direitos de pacientes e pessoas com deficiência, sempre buscando atender às suas demandas de forma empática e eficiente.</p>
+                        <p class="italic">Admiro profundamente o Direito e a advocacia, pois acredito que: "O advogado é o interlocutor do cidadão para que a justiça não cometa injustiça."</p>
+                        <p>Diante das lutas que enfrentei, atuo com diligência e ética, priorizando resultados que garantam a defesa dos direitos dos meus clientes e assegurem que suas vozes sejam ouvidas. Meu compromisso vai além do litígio: ofereço um serviço jurídico personalizado, focado na resolução de conflitos e na conquista de soluções justas e eficazes.</p>
+                        <p class="font-semibold text-destaque mt-6">SÍNTESE RESUMO</p>
+                        <p>Advogado Especialista em Direito Estratégico</p>
+                        <p>Áreas principais: Saúde | Imobiliário | Previdenciário</p>
+                        <p>Atendimento nacional online, presencial em João Pessoa.</p>
                     </div>
-                    <div class="order-1 md:order-2 flex justify-center md:block relative">
-                        <img src="assets/img/Foto Gabriel Mario adv.png" alt="Gabriel Mário Advogado"
-                            class="rounded-lg shadow-xl w-full max-w-xs md:max-w-md lg:max-w-lg xl:max-w-xl h-auto transform transition duration-500 hover:scale-105">
+                    <div class="order-1 md:order-2 flex justify-center items-center">
+                        <img src="/assets/img/Foto Gabriel Mario adv.png" alt="Foto profissional de Gabriel Mário, Advogado" class="rounded-lg shadow-xl w-full max-w-sm md:max-w-md transform transition-transform duration-500 hover:scale-105 hover:shadow-2xl border-4 border-ouro/50">
                     </div>
                 </div>
             </div>
-            <img src="assets/img/logo-cinza-transparente.webp"
-                class="watermark absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-10 w-1/3 pointer-events-none">
+            <img src="/assets/img/logo-cinza-transparente.webp" alt="Marca d'água sutil do logotipo" class="watermark absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-10 w-1/3 pointer-events-none" style="z-index: -1;">
         </section>
 
-        <!-- Áreas de Atuação -->
-        <section id="atuacao" class="py-20 bg-gray-100">
-            <div class="container mx-auto px-4" x-data="{ openArea: null }">
-                <h2 class="text-3xl md:text-4xl font-serif text-accent text-center mb-12">Áreas de Atuação</h2>
+        <section id="atuacao" class="py-16 md:py-24 bg-gray-100">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl md:text-4xl font-serif text-destaque text-center mb-12 md:mb-16" data-aos="fade-up">Áreas de Atuação</h2>
+                <div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
 
-                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-                    <!-- Direito Contratual -->
-                    <div class="bg-white rounded-xl shadow-md overflow-hidden" x-data="{ open: false }">
-                        <div class="p-6 cursor-pointer" @click="open = !open">
-                            <h3 class="font-serif text-xl text-accent mb-2">Direito Contratual</h3>
-                            <p class="text-gray-600">Contratos não são apenas papéis - são relações de confiança
-                                materializadas. Transformamos acordos em instrumentos de proteção mútua com clareza e
-                                previsibilidade.</p>
+                    <div x-data="{ aberto: false }" class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col transform hover:shadow-2xl hover:-translate-y-1 transition-all duration-300" data-aos="fade-up" data-aos-delay="100">
+                        <div class="p-6 cursor-pointer" @click="aberto = !aberto" role="button" :aria-expanded="aberto.toString()" aria-controls="conteudo-contratual">
+                            <div class="flex items-center mb-3">
+                                <i class="fas fa-file-signature fa-2x text-destaque mr-3" aria-hidden="true"></i>
+                                <h3 class="font-serif text-xl text-destaque">Direito Contratual</h3>
+                            </div>
+                            <p class="text-gray-600 text-sm leading-relaxed">Contratos não são apenas papéis - são relações de confiança materializadas. Transformamos acordos em instrumentos de proteção mútua com clareza e previsibilidade.</p>
                         </div>
-                        <div class="px-6 pb-6 transition-all duration-300" x-show="open" x-collapse>
-                            <div class="border-t border-accent pt-6">
-                                <div class="grid md:grid-cols-2 gap-6 items-start">
-                                    <div class="prose">
-                                        <h4 class="font-serif text-lg text-accent mb-4">Atuação Especializada</h4>
-                                        <p>Oferecemos elaboração, revisão e análise de contratos com segurança jurídica:
-                                        </p>
-                                        <ul class="list-disc pl-6 mt-4">
-                                            <li>Contratos empresariais</li>
-                                            <li>Contratos cíveis</li>
-                                            <li>Contratos de locação</li>
-                                            <li>Transações entre particulares</li>
-                                        </ul>
-                                    </div>
-                                    <img src="assets/img/IMAGEM PRINCIPAL DIREITO CONTRATUAL CONFORME GOOGLE.jpg" alt="Direito Contratual"
-                                        class="rounded-lg shadow-xl border-2 border-accent">
-                                </div>
+                        <div id="conteudo-contratual" x-show="aberto" x-collapse x-cloak class="px-6 pb-6 border-t border-gray-200">
+                            <div class="pt-4">
+                                <h4 class="font-serif text-lg text-destaque mb-4">Atuação Especializada</h4>
+                                <p class="text-sm text-gray-600 mb-2">Oferecemos elaboração, revisão e análise de contratos com segurança jurídica:</p>
+                                <ul class="list-disc list-inside text-sm text-gray-600 space-y-1 pl-2">
+                                    <li>Contratos empresariais</li>
+                                    <li>Contratos cíveis</li>
+                                    <li>Contratos de locação</li>
+                                    <li>Transações entre particulares</li>
+                                </ul>
+                                <img src="/assets/img/IMAGEM PRINCIPAL DIREITO CONTRATUAL CONFORME GOOGLE.jpg" alt="Ilustração sobre Direito Contratual" class="rounded-lg shadow-md mt-4 w-full h-auto max-h-36 object-cover">
                             </div>
                         </div>
                     </div>
 
-                    <!-- Direito Médico -->
-                    <div class="bg-white rounded-xl shadow-md overflow-hidden" x-data="{ open: false }">
-                        <div class="p-6 cursor-pointer" @click="open = !open">
-                            <h3 class="font-serif text-xl text-accent mb-2">Direito Médico</h3>
-                            <p class="text-gray-600">Lutamos contra negativas de atendimento, falta de medicamentos e
-                                cobranças abusivas em planos de saúde.</p>
+                    <div x-data="{ aberto: false }" class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col transform hover:shadow-2xl hover:-translate-y-1 transition-all duration-300" data-aos="fade-up" data-aos-delay="200">
+                        <div class="p-6 cursor-pointer" @click="aberto = !aberto" role="button" :aria-expanded="aberto.toString()" aria-controls="conteudo-medico">
+                            <div class="flex items-center mb-3">
+                                <i class="fas fa-briefcase-medical fa-2x text-destaque mr-3" aria-hidden="true"></i>
+                                <h3 class="font-serif text-xl text-destaque">Direito Médico</h3>
+                            </div>
+                            <p class="text-gray-600 text-sm leading-relaxed">Lutamos contra negativas de atendimento, falta de medicamentos e cobranças abusivas em planos de saúde.</p>
                         </div>
-                        <div class="px-6 pb-6 transition-all duration-300" x-show="open" x-collapse>
-                            <div class="border-t border-accent pt-6">
-                                <div class="grid md:grid-cols-2 gap-6 items-start">
-                                    <div class="prose">
-                                        <h4 class="font-serif text-lg text-accent mb-4">Proteção Integral</h4>
-                                        <ul class="list-disc pl-6">
-                                            <li>Negativa de atendimentos médicos</li>
-                                            <li>Recusa de medicamentos essenciais</li>
-                                            <li>Constrangimento em situações delicadas</li>
-                                            <li>Ações judiciais urgentes</li>
-                                        </ul>
-                                    </div>
-                                    <img src="assets/img/IMAGEM PRINCIPAL  DIREITO MÉDICO E ACESSO A SAUDE CONFORME GOOGLE.jpg" alt="Direito Médico"
-                                        class="rounded-lg shadow-xl border-2 border-accent">
-                                </div>
+                        <div id="conteudo-medico" x-show="aberto" x-collapse x-cloak class="px-6 pb-6 border-t border-gray-200">
+                            <div class="pt-4">
+                                <h4 class="font-serif text-lg text-destaque mb-4">Proteção Integral</h4>
+                                <ul class="list-disc list-inside text-sm text-gray-600 space-y-1 pl-2">
+                                    <li>Negativa de atendimentos médicos</li>
+                                    <li>Recusa de medicamentos essenciais</li>
+                                    <li>Constrangimento em situações delicadas</li>
+                                    <li>Ações judiciais urgentes</li>
+                                </ul>
+                                <img src="/assets/img/IMAGEM PRINCIPAL  DIREITO MÉDICO E ACESSO A SAUDE CONFORME GOOGLE.jpg" alt="Ilustração sobre Direito Médico" class="rounded-lg shadow-md mt-4 w-full h-auto max-h-36 object-cover">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div x-data="{ aberto: false }" class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col transform hover:shadow-2xl hover:-translate-y-1 transition-all duration-300" data-aos="fade-up" data-aos-delay="300">
+                        <div class="p-6 cursor-pointer" @click="aberto = !aberto" role="button" :aria-expanded="aberto.toString()" aria-controls="conteudo-tributario">
+                            <div class="flex items-center mb-3">
+                                <i class="fas fa-landmark fa-2x text-destaque mr-3" aria-hidden="true"></i>
+                                <h3 class="font-serif text-xl text-destaque">Direito Tributário</h3>
+                            </div>
+                            <p class="text-gray-600 text-sm leading-relaxed">Transformamos obrigações fiscais em oportunidades com planejamento tributário inteligente e defesa contra autuações.</p>
+                        </div>
+                        <div id="conteudo-tributario" x-show="aberto" x-collapse x-cloak class="px-6 pb-6 border-t border-gray-200">
+                            <div class="pt-4">
+                                <h4 class="font-serif text-lg text-destaque mb-4">Serviços Principais</h4>
+                                <ul class="list-disc list-inside text-sm text-gray-600 space-y-1 pl-2">
+                                    <li>Planejamento tributário</li>
+                                    <li>Regularização fiscal</li>
+                                    <li>Consultoria preventiva</li>
+                                    <li>Defesa em ações fiscais</li>
+                                </ul>
+                                <img src="/assets/img/IMAGEM PRINCIPAL DIREITO TRIBUTÁRIO CONFORME GOOGLE.jpeg" alt="Ilustração sobre Direito Tributário" class="rounded-lg shadow-md mt-4 w-full h-auto max-h-36 object-cover">
                             </div>
                         </div>
                     </div>
 
-                    <!-- Direito Tributário -->
-                    <div class="bg-white rounded-xl shadow-md overflow-hidden" x-data="{ open: false }">
-                        <div class="p-6 cursor-pointer" @click="open = !open">
-                            <h3 class="font-serif text-xl text-accent mb-2">Direito Tributário</h3>
-                            <p class="text-gray-600">Transformamos obrigações fiscais em oportunidades com planejamento
-                                tributário inteligente e defesa contra autuações.</p>
+                    <div x-data="{ aberto: false }" class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col transform hover:shadow-2xl hover:-translate-y-1 transition-all duration-300" data-aos="fade-up" data-aos-delay="100">
+                        <div class="p-6 cursor-pointer" @click="aberto = !aberto" role="button" :aria-expanded="aberto.toString()" aria-controls="conteudo-imobiliaria">
+                            <div class="flex items-center mb-3">
+                                <i class="fas fa-city fa-2x text-destaque mr-3" aria-hidden="true"></i>
+                                <h3 class="font-serif text-xl text-destaque">Regularização Imobiliária</h3>
+                            </div>
+                            <p class="text-gray-600 text-sm leading-relaxed">Garantimos segurança jurídica para seu patrimônio com regularização documental e solução de conflitos.</p>
                         </div>
-                        <div class="px-6 pb-6 transition-all duration-300" x-show="open" x-collapse>
-                            <div class="border-t border-accent pt-6">
-                                <div class="grid md:grid-cols-2 gap-6 items-start">
-                                    <div class="prose">
-                                        <h4 class="font-serif text-lg text-accent mb-4">Serviços Principais</h4>
-                                        <ul class="list-disc pl-6">
-                                            <li>Planejamento tributário</li>
-                                            <li>Regularização fiscal</li>
-                                            <li>Consultoria preventiva</li>
-                                            <li>Defesa em ações fiscais</li>
-                                        </ul>
-                                    </div>
-                                    <img src="assets/img/IMAGEM PRINCIPAL DIREITO TRIBUTÁRIO CONFORME GOOGLE.jpeg" alt="Direito Tributário"
-                                        class="rounded-lg shadow-xl border-2 border-accent">
-                                </div>
+                        <div id="conteudo-imobiliaria" x-show="aberto" x-collapse x-cloak class="px-6 pb-6 border-t border-gray-200">
+                            <div class="pt-4">
+                                <h4 class="font-serif text-lg text-destaque mb-4">Atuação Completa</h4>
+                                <ul class="list-disc list-inside text-sm text-gray-600 space-y-1 pl-2">
+                                     <li>Legalização de documentos</li>
+                                     <li>Contratos imobiliários</li>
+                                     <li>Mediação de conflitos</li>
+                                     <li>Defesa judicial</li>
+                                </ul>
+                                <img src="/assets/img/IMAGEM PRINCIPAL REGULARIZAÇÃO IMOBILIÁRIA CONFORME GOOGLE.jpg" alt="Ilustração sobre Regularização Imobiliária" class="rounded-lg shadow-md mt-4 w-full h-auto max-h-36 object-cover">
                             </div>
                         </div>
                     </div>
 
-                    <!-- Regularização Imobiliária -->
-                    <div class="bg-white rounded-xl shadow-md overflow-hidden" x-data="{ open: false }">
-                        <div class="p-6 cursor-pointer" @click="open = !open">
-                            <h3 class="font-serif text-xl text-accent mb-2">Regularização Imobiliária</h3>
-                            <p class="text-gray-600">Garantimos segurança jurídica para seu patrimônio com regularização
-                                documental e solução de conflitos.</p>
+                    <div x-data="{ aberto: false }" class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col transform hover:shadow-2xl hover:-translate-y-1 transition-all duration-300" data-aos="fade-up" data-aos-delay="200">
+                        <div class="p-6 cursor-pointer" @click="aberto = !aberto" role="button" :aria-expanded="aberto.toString()" aria-controls="conteudo-administrativo">
+                            <div class="flex items-center mb-3">
+                                <i class="fas fa-gavel fa-2x text-destaque mr-3" aria-hidden="true"></i>
+                                <h3 class="font-serif text-xl text-destaque">Direito Administrativo</h3>
+                            </div>
+                            <p class="text-gray-600 text-sm leading-relaxed">Proteção de carreiras públicas com defesa técnica em processos disciplinares e garantia de direitos.</p>
                         </div>
-                        <div class="px-6 pb-6 transition-all duration-300" x-show="open" x-collapse>
-                            <div class="border-t border-accent pt-6">
-                                <div class="grid md:grid-cols-2 gap-6 items-start">
-                                    <div class="prose">
-                                        <h4 class="font-serif text-lg text-accent mb-4">Atuação Completa</h4>
-                                        <ul class="list-disc pl-6">
-                                            <li>Legalização de documentos</li>
-                                            <li>Contratos imobiliários</li>
-                                            <li>Mediação de conflitos</li>
-                                            <li>Defesa judicial</li>
-                                        </ul>
-                                    </div>
-                                    <img src="assets/img/IMAGEM PRINCIPAL REGULARIZAÇÃO IMOBILIÁRIA CONFORME GOOGLE.jpg" alt="Regularização Imobiliária"
-                                        class="rounded-lg shadow-xl border-2 border-accent">
-                                </div>
+                        <div id="conteudo-administrativo" x-show="aberto" x-collapse x-cloak class="px-6 pb-6 border-t border-gray-200">
+                            <div class="pt-4">
+                                <h4 class="font-serif text-lg text-destaque mb-4">Áreas de Atuação</h4>
+                                <ul class="list-disc list-inside text-sm text-gray-600 space-y-1 pl-2">
+                                    <li>Defesa em exonerações</li>
+                                    <li>Cobrança de verbas atrasadas</li>
+                                    <li>Processos disciplinares (PAD)</li>
+                                    <li>Consultoria preventiva</li>
+                                </ul>
+                                <img src="/assets/img/IMAGEM PRINCIPAL ADMINISTRATIVO CONFORME GOOGLE.jpeg" alt="Ilustração sobre Direito Administrativo" class="rounded-lg shadow-md mt-4 w-full h-auto max-h-36 object-cover">
                             </div>
                         </div>
                     </div>
 
-                    <!-- Direito Administrativo -->
-                    <div class="bg-white rounded-xl shadow-md overflow-hidden" x-data="{ open: false }">
-                        <div class="p-6 cursor-pointer" @click="open = !open">
-                            <h3 class="font-serif text-xl text-accent mb-2">Direito Administrativo</h3>
-                            <p class="text-gray-600">Proteção de carreiras públicas com defesa técnica em processos
-                                disciplinares e garantia de direitos trabalhistas.</p>
+                    <div x-data="{ aberto: false }" class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col transform hover:shadow-2xl hover:-translate-y-1 transition-all duration-300" data-aos="fade-up" data-aos-delay="300">
+                        <div class="p-6 cursor-pointer" @click="aberto = !aberto" role="button" :aria-expanded="aberto.toString()" aria-controls="conteudo-civil">
+                            <div class="flex items-center mb-3">
+                                <i class="fas fa-users fa-2x text-destaque mr-3" aria-hidden="true"></i>
+                                <h3 class="font-serif text-xl text-destaque">Direito Civil</h3>
+                            </div>
+                            <p class="text-gray-600 text-sm leading-relaxed">Soluções para conflitos envolvendo relações pessoais, patrimoniais e familiares com abordagem humanizada.</p>
                         </div>
-                        <div class="px-6 pb-6 transition-all duration-300" x-show="open" x-collapse>
-                            <div class="border-t border-accent pt-6">
-                                <div class="grid md:grid-cols-2 gap-6 items-start">
-                                    <div class="prose">
-                                        <h4 class="font-serif text-lg text-accent mb-4">Áreas de Atuação</h4>
-                                        <ul class="list-disc pl-6">
-                                            <li>Defesa em exonerações</li>
-                                            <li>Cobrança de verbas atrasadas</li>
-                                            <li>Processos disciplinares (PAD)</li>
-                                            <li>Consultoria preventiva</li>
-                                        </ul>
-                                    </div>
-                                    <img src="assets/img/IMAGEM PRINCIPAL ADMINISTRATIVO CONFORME GOOGLE.jpeg" alt="Direito Administrativo"
-                                        class="rounded-lg shadow-xl border-2 border-accent">
-                                </div>
+                        <div id="conteudo-civil" x-show="aberto" x-collapse x-cloak class="px-6 pb-6 border-t border-gray-200">
+                            <div class="pt-4">
+                                <h4 class="font-serif text-lg text-destaque mb-4">Especialidades</h4>
+                                <ul class="list-disc list-inside text-sm text-gray-600 space-y-1 pl-2">
+                                    <li>Responsabilidade civil</li>
+                                    <li>Direito de família</li>
+                                    <li>Usucapião</li>
+                                    <li>Questões condominiais</li>
+                                </ul>
+                                <img src="/assets/img/IMAGEM PRINCIPAL DIREITO CIVIL CONFORME GOOGLE.jpeg" alt="Ilustração sobre Direito Civil" class="rounded-lg shadow-md mt-4 w-full h-auto max-h-36 object-cover">
                             </div>
                         </div>
                     </div>
 
-                    <!-- Direito Civil -->
-                    <div class="bg-white rounded-xl shadow-md overflow-hidden" x-data="{ open: false }">
-                        <div class="p-6 cursor-pointer" @click="open = !open">
-                            <h3 class="font-serif text-xl text-accent mb-2">Direito Civil</h3>
-                            <p class="text-gray-600">Soluções para conflitos envolvendo relações pessoais, patrimoniais
-                                e familiares com abordagem humanizada.</p>
+                    <div x-data="{ aberto: false }" class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col transform hover:shadow-2xl hover:-translate-y-1 transition-all duration-300" data-aos="fade-up" data-aos-delay="100">
+                        <div class="p-6 cursor-pointer" @click="aberto = !aberto" role="button" :aria-expanded="aberto.toString()" aria-controls="conteudo-trabalho">
+                            <div class="flex items-center mb-3">
+                                <i class="fas fa-hard-hat fa-2x text-destaque mr-3" aria-hidden="true"></i>
+                                <h3 class="font-serif text-xl text-destaque">Direito do Trabalho</h3>
+                            </div>
+                            <p class="text-gray-600 text-sm leading-relaxed">Defesa de direitos trabalhistas com foco em rescisões, assédio moral e horas extras não pagas.</p>
                         </div>
-                        <div class="px-6 pb-6 transition-all duration-300" x-show="open" x-collapse>
-                            <div class="border-t border-accent pt-6">
-                                <div class="grid md:grid-cols-2 gap-6 items-start">
-                                    <div class="prose">
-                                        <h4 class="font-serif text-lg text-accent mb-4">Especialidades</h4>
-                                        <ul class="list-disc pl-6">
-                                            <li>Responsabilidade civil</li>
-                                            <li>Direito de família</li>
-                                            <li>Usucapião</li>
-                                            <li>Questões condominiais</li>
-                                        </ul>
-                                    </div>
-                                    <img src="assets/img/IMAGEM PRINCIPAL DIREITO CIVIL CONFORME GOOGLE.jpeg" alt="Direito Civil"
-                                        class="rounded-lg shadow-xl border-2 border-accent">
-                                </div>
+                        <div id="conteudo-trabalho" x-show="aberto" x-collapse x-cloak class="px-6 pb-6 border-t border-gray-200">
+                            <div class="pt-4">
+                                <h4 class="font-serif text-lg text-destaque mb-4">Atuação Estratégica</h4>
+                                <ul class="list-disc list-inside text-sm text-gray-600 space-y-1 pl-2">
+                                    <li>Reclamatórias trabalhistas</li>
+                                    <li>Assédio moral e sexual</li>
+                                    <li>Doenças ocupacionais e acidentes</li>
+                                    <li>Acordos extrajudiciais</li>
+                                </ul>
+                                <img src="/assets/img/IMAGEM PRINCIPAL TRABALHO CONFORME GOOGLE.jpeg" alt="Ilustração sobre Direito do Trabalho" class="rounded-lg shadow-md mt-4 w-full h-auto max-h-36 object-cover">
                             </div>
                         </div>
                     </div>
 
-                    <!-- Direito do Trabalho -->
-                    <div class="bg-white rounded-xl shadow-md overflow-hidden" x-data="{ open: false }">
-                        <div class="p-6 cursor-pointer" @click="open = !open">
-                            <h3 class="font-serif text-xl text-accent mb-2">Direito do Trabalho</h3>
-                            <p class="text-gray-600">Defesa de direitos trabalhistas com foco em rescisões, assédio
-                                moral e horas extras não pagas.</p>
+                    <div x-data="{ aberto: false }" class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col transform hover:shadow-2xl hover:-translate-y-1 transition-all duration-300" data-aos="fade-up" data-aos-delay="200">
+                        <div class="p-6 cursor-pointer" @click="aberto = !aberto" role="button" :aria-expanded="aberto.toString()" aria-controls="conteudo-previdenciario">
+                            <div class="flex items-center mb-3">
+                                <i class="fas fa-universal-access fa-2x text-destaque mr-3" aria-hidden="true"></i>
+                                <h3 class="font-serif text-xl text-destaque">Direito Previdenciário</h3>
+                            </div>
+                            <p class="text-gray-600 text-sm leading-relaxed">Garantimos acesso a aposentadorias, auxílios e benefícios previdenciários com planejamento estratégico.</p>
                         </div>
-                        <div class="px-6 pb-6 transition-all duration-300" x-show="open" x-collapse>
-                            <div class="border-t border-accent pt-6">
-                                <div class="grid md:grid-cols-2 gap-6 items-start">
-                                    <div class="prose">
-                                        <h4 class="font-serif text-lg text-accent mb-4">Atuação Estratégica</h4>
-                                        <ul class="list-disc pl-6">
-                                            <li>Reclamatórias trabalhistas</li>
-                                            <li>Assédio moral</li>
-                                            <li>Doenças ocupacionais</li>
-                                            <li>Acordos extrajudiciais</li>
-                                        </ul>
-                                    </div>
-                                    <img src="assets/img/IMAGEM PRINCIPAL TRABALHO CONFORME GOOGLE.jpeg" alt="Direito do Trabalho"
-                                        class="rounded-lg shadow-xl border-2 border-accent">
-                                </div>
+                        <div id="conteudo-previdenciario" x-show="aberto" x-collapse x-cloak class="px-6 pb-6 border-t border-gray-200">
+                            <div class="pt-4">
+                                <h4 class="font-serif text-lg text-destaque mb-4">Serviços</h4>
+                                <ul class="list-disc list-inside text-sm text-gray-600 space-y-1 pl-2">
+                                    <li>Aposentadorias (idade, tempo, especial)</li>
+                                    <li>Pensão por morte e auxílio-reclusão</li>
+                                    <li>Revisão de benefícios (INSS)</li>
+                                    <li>Benefício de Prestação Continuada (BPC/LOAS)</li>
+                                </ul>
+                                <img src="/assets/img/IMAGEM PRINCIPAL PREVIDENCIARIO CONFORME GOOGLE.jpeg" alt="Ilustração sobre Direito Previdenciário" class="rounded-lg shadow-md mt-4 w-full h-auto max-h-36 object-cover">
                             </div>
                         </div>
                     </div>
 
-                    <!-- Direito Previdenciário -->
-                    <div class="bg-white rounded-xl shadow-md overflow-hidden" x-data="{ open: false }">
-                        <div class="p-6 cursor-pointer" @click="open = !open">
-                            <h3 class="font-serif text-xl text-accent mb-2">Direito Previdenciário</h3>
-                            <p class="text-gray-600">Garantimos acesso a aposentadorias, auxílios e benefícios
-                                previdenciários com planejamento estratégico.</p>
-                        </div>
-                        <div class="px-6 pb-6 transition-all duration-300" x-show="open" x-collapse>
-                            <div class="border-t border-accent pt-6">
-                                <div class="grid md:grid-cols-2 gap-6 items-start">
-                                    <div class="prose">
-                                        <h4 class="font-serif text-lg text-accent mb-4">Serviços</h4>
-                                        <ul class="list-disc pl-6">
-                                            <li>Aposentadorias especiais</li>
-                                            <li>Pensão por morte</li>
-                                            <li>Revisão de benefícios</li>
-                                            <li>Litígios contra o INSS</li>
-                                        </ul>
-                                    </div>
-                                    <img src="assets/img/IMAGEM PRINCIPAL PREVIDENCIARIO CONFORME GOOGLE.jpeg" alt="Direito Previdenciário"
-                                        class="rounded-lg shadow-xl border-2 border-accent">
-                                </div>
+                    <div x-data="{ aberto: false }" class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col transform hover:shadow-2xl hover:-translate-y-1 transition-all duration-300" data-aos="fade-up" data-aos-delay="300">
+                        <div class="p-6 cursor-pointer" @click="aberto = !aberto" role="button" :aria-expanded="aberto.toString()" aria-controls="conteudo-deficiencia">
+                            <div class="flex items-center mb-3">
+                                <i class="fas fa-wheelchair fa-2x text-destaque mr-3" aria-hidden="true"></i>
+                                <h3 class="font-serif text-xl text-destaque">Pessoas com Deficiência e Doenças Raras</h3>
                             </div>
+                            <p class="text-gray-600 text-sm leading-relaxed">Proteção de direitos com foco em inclusão, acessibilidade e acesso a benefícios específicos.</p>
                         </div>
-                    </div>
-
-                    <!-- Pessoas com Deficiência -->
-                    <div class="bg-white rounded-xl shadow-md overflow-hidden" x-data="{ open: false }">
-                        <div class="p-6 cursor-pointer" @click="open = !open">
-                            <h3 class="font-serif text-xl text-accent mb-2">Pessoas com Deficiência e com Doenças Raras</h3>
-                            <p class="text-gray-600">Proteção de direitos com foco em inclusão, acessibilidade e acesso
-                                a benefícios específicos.</p>
-                        </div>
-                        <div class="px-6 pb-6 transition-all duration-300" x-show="open" x-collapse>
-                            <div class="border-t border-accent pt-6">
-                                <div class="grid md:grid-cols-2 gap-6 items-start">
-                                    <div class="prose">
-                                        <h4 class="font-serif text-lg text-accent mb-4">Atuação Especializada</h4>
-                                        <ul class="list-disc pl-6">
-                                            <li>Isenções tributárias</li>
-                                            <li>Acesso a medicamentos</li>
-                                            <li>Benefícios previdenciários</li>
-                                            <li>Inclusão social</li>
-                                        </ul>
-                                    </div>
-                                    <img src="assets/img/IMAGEM PRINCIPAL Deficiência e doenças raras.jpeg" alt="Pessoas com Deficiência"
-                                        class="rounded-lg shadow-xl border-2 border-accent">
-                                </div>
+                        <div id="conteudo-deficiencia" x-show="aberto" x-collapse x-cloak class="px-6 pb-6 border-t border-gray-200">
+                            <div class="pt-4">
+                                <h4 class="font-serif text-lg text-destaque mb-4">Atuação Especializada</h4>
+                                <ul class="list-disc list-inside text-sm text-gray-600 space-y-1 pl-2">
+                                    <li>Isenções tributárias (ICMS, IPI, IPVA)</li>
+                                    <li>Acesso a medicamentos de alto custo</li>
+                                    <li>Benefícios previdenciários e assistenciais</li>
+                                    <li>Questões de inclusão e acessibilidade</li>
+                                </ul>
+                                <img src="/assets/img/IMAGEM PRINCIPAL Deficiência e doenças raras.jpeg" alt="Ilustração sobre Direitos de Pessoas com Deficiência" class="rounded-lg shadow-md mt-4 w-full h-auto max-h-36 object-cover">
                             </div>
                         </div>
                     </div>
@@ -382,121 +322,202 @@
             </div>
         </section>
 
-        <!-- Blog Section -->
-        <section id="blog" class="py-20 bg-white">
-            <div class="container mx-auto px-4">
-                <h2 class="text-3xl md:text-4xl font-serif text-accent text-center mb-12">Artigos Recentes</h2>
-                <div id="blog-posts" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        <section id="blog" class="py-16 md:py-24 bg-gray-50">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl md:text-4xl font-serif text-destaque text-center mb-12 md:mb-16" data-aos="fade-up">Artigos Recentes</h2>
+                <div id="blog-posts" class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                    </div>
             </div>
         </section>
 
-        <!-- Rodapé -->
-        <footer id="contato" class="bg-primary text-gray-200 py-12">
-            <div class="container mx-auto px-4">
-                <!-- OAB como título -->
-                <div class="text-center mb-8">
-                    <p class="text-sm text-gray-400">Registro OAB</p>
-                    <p class="text-gold font-bold text-xl">PB 34172</p>
+        <footer id="contato" class="bg-primaria text-gray-300 pt-16 pb-8">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-10">
+                    <p class="text-sm text-gray-400 uppercase tracking-wider">Registro Profissional</p>
+                    <p class="text-ouro font-bold text-2xl md:text-3xl mt-1">OAB/PB 34.172</p>
                 </div>
-
-                <div class="grid md:grid-cols-3 gap-8">
-                    <div class="flex justify-center items-center">
-                        <img src="assets/img/logo-dourada-maior-semfundo.webp" alt="Gabriel Mário Advogado"
-                            class="h-24 w-auto mx-4">
+                <div class="grid md:grid-cols-3 gap-8 md:gap-12 items-start">
+                    <div class="flex flex-col items-center md:items-start text-center md:text-left">
+                        <img src="/assets/img/logo-dourada-maior-semfundo.webp" alt="Logotipo Gabriel Mário Advocacia - Rodapé" class="h-20 w-auto mb-4">
+                        <p class="text-sm text-gray-400 leading-relaxed">Compromisso com a ética, excelência e a defesa incansável dos seus direitos.</p>
                     </div>
-
-                    <!-- Coluna Central - Contato -->
-                    <div>
-                        <h3 class="text-gold text-xl mb-4 text-center md:text-left">Contato</h3>
-                        <ul class="space-y-2 text-center md:text-left">
-                            <li><i class="fas fa-phone mr-2"></i>(83) 98849-5076</li>
-                            <li><i class="fas fa-envelope mr-2"></i>gabrielmarioadv@gmail.com</li>
+                    <div class="text-center md:text-left">
+                        <h3 class="text-ouro text-lg font-semibold mb-4 uppercase tracking-wider">Contato Rápido</h3>
+                        <ul class="space-y-2 text-sm">
+                            <li><a href="tel:+5583988495076" class="hover:text-ouro transition-colors inline-flex items-center"><i class="fas fa-phone fa-fw mr-2 text-ouro/80" aria-hidden="true"></i>(83) 98849-5076</a></li>
+                            <li><a href="mailto:gabrielmarioadv@gmail.com" class="hover:text-ouro transition-colors inline-flex items-center"><i class="fas fa-envelope fa-fw mr-2 text-ouro/80" aria-hidden="true"></i>gabrielmarioadv@gmail.com</a></li>
+                            <li><i class="fas fa-map-marker-alt fa-fw mr-2 text-ouro/80" aria-hidden="true"></i>João Pessoa, PB (Atendimento online e presencial)</li>
                         </ul>
                     </div>
-
-                    <!-- Coluna Direita - Redes Sociais -->
-                    <div>
-                        <h3 class="text-gold text-xl mb-4">Conecte-se</h3>
-                        <div class="flex space-x-4">
-                            <a href="https://wa.me/558388495076" target="_blank" rel="noopener noreferrer"
-                                class="text-gold hover:text-accent transition-transform transform hover:scale-125">
-                                <i class="fab fa-whatsapp fa-lg"></i>
-                                <span class="sr-only">WhatsApp</span>
-                            </a>
-                            <a href="https://www.linkedin.com/in/gabrielmaario" target="_blank"
-                                rel="noopener noreferrer"
-                                class="text-gold hover:text-accent transition-transform transform hover:scale-125">
-                                <i class="fab fa-linkedin fa-lg"></i>
-                                <span class="sr-only">LinkedIn</span>
-                            </a>
-                            <a href="https://www.instagram.com/gabrielmarioadv/" target="_blank"
-                                rel="noopener noreferrer"
-                                class="text-gold hover:text-accent transition-transform transform hover:scale-125">
-                                <i class="fab fa-instagram fa-lg"></i>
-                                <span class="sr-only">Instagram</span>
-                            </a>
-                            <a href="https://www.facebook.com/profile.php?id=100079332526851&sk=about" target="_blank"
-                                rel="noopener noreferrer"
-                                class="text-gold hover:text-accent transition-transform transform hover:scale-125">
-                                <i class="fab fa-facebook fa-lg"></i>
-                                <span class="sr-only">Facebook</span>
-                            </a>
-                            <a href="https://linktr.ee/gabrielmarioadv" target="_blank" rel="noopener noreferrer"
-                                class="text-gold hover:text-accent transition-transform transform hover:scale-125">
-                                <i class="fas fa-tree fa-lg"></i>
-                                <span class="sr-only">Linktree</span>
-                            </a>
+                    <div class="text-center md:text-left">
+                        <h3 class="text-ouro text-lg font-semibold mb-4 uppercase tracking-wider">Siga-me</h3>
+                        <div class="flex space-x-4 justify-center md:justify-start">
+                            <a href="https://wa.me/5583988495076?text=Ol%C3%A1%2C%20Dr.%20Gabriel%20M%C3%A1rio." target="_blank" rel="noopener noreferrer" aria-label="WhatsApp de Gabriel Mário" class="text-gray-300 hover:text-ouro transition-colors transform hover:scale-125"><i class="fab fa-whatsapp fa-2x" aria-hidden="true"></i></a>
+                            <a href="https://www.linkedin.com/in/gabrielmaario" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn de Gabriel Mário" class="text-gray-300 hover:text-ouro transition-colors transform hover:scale-125"><i class="fab fa-linkedin fa-2x" aria-hidden="true"></i></a>
+                            <a href="https://www.instagram.com/gabrielmarioadv/" target="_blank" rel="noopener noreferrer" aria-label="Instagram de Gabriel Mário" class="text-gray-300 hover:text-ouro transition-colors transform hover:scale-125"><i class="fab fa-instagram fa-2x" aria-hidden="true"></i></a>
+                            <a href="https://www.facebook.com/profile.php?id=100079332526851" target="_blank" rel="noopener noreferrer" aria-label="Facebook de Gabriel Mário" class="text-gray-300 hover:text-ouro transition-colors transform hover:scale-125"><i class="fab fa-facebook fa-2x" aria-hidden="true"></i></a>
+                            <a href="https://linktr.ee/gabrielmarioadv" target="_blank" rel="noopener noreferrer" aria-label="Linktree de Gabriel Mário" class="text-gray-300 hover:text-ouro transition-colors transform hover:scale-125"><i class="fas fa-tree fa-2x" aria-hidden="true"></i></a>
                         </div>
                     </div>
+                </div>
+                <div class="border-t border-gray-700 mt-10 md:mt-12 pt-6 text-center text-xs text-gray-400">
+                    <p>&copy; <span id="anoAtualRodape"></span> Gabriel Mário Advocacia. Todos os direitos reservados.</p>
+                    <p class="mt-1">Desenvolvido por <a href="https://bieldev.com.br/" target="_blank" rel="noopener noreferrer" class="hover:text-ouro underline">Biel CASTRO - Dev Web FullStack</a></p>
                 </div>
             </div>
         </footer>
     </main>
 
-    <!-- Scripts -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script defer src="https://unpkg.com/alpinejs@3.13.5/dist/cdn.min.js"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.13.10/dist/cdn.min.js"></script>
+    <script defer src="https://unpkg.com/@alpinejs/collapse@3.13.10/dist/cdn.min.js"></script>
+
     <script>
-        // Inicialização
-        document.addEventListener('DOMContentLoaded', () => {
-            AOS.init({ duration: 800, once: true });
-            loadBlogPosts();
-        });
+        // Lógica JavaScript principal da página index.html
 
-        // Carregar posts do blog
-        async function loadBlogPosts() {
-            try {
-                const response = await fetch('/blog/posts.json');
-                const posts = await response.json();
-                const container = document.getElementById('blog-posts');
-
-                posts.forEach(post => {
-                    container.innerHTML += `
-                        <article class="bg-gray-50 rounded-lg overflow-hidden shadow-md">
-                            <div class="p-6">
-                                <h3 class="font-serif text-xl mb-2">${post.title}</h3>
-                                <p class="text-gray-600 mb-4">${post.excerpt}</p>
-                                <a href="/blog/post.html?id=${post.id}" class="text-accent hover:underline">Leia mais</a>
-                            </div>
-                        </article>
-                    `;
-                });
-            } catch (error) {
-                console.error('Erro ao carregar posts:', error);
-            }
-        }
-
-        // Alpine.js Data
         function app() {
             return {
                 currentArea: null,
-                areas: [/* Dados das áreas */],
+                areas: [/* Dados das áreas (se for usar esta estrutura para algo) */],
                 showArea(key) {
                     this.currentArea = this.areas.find(a => a.key === key);
                 }
             }
         }
+
+        /**
+         * Carrega os posts recentes da API e os renderiza na seção de blog.
+         */
+        async function carregarArtigosDaApi() {
+            const containerPosts = document.getElementById('blog-posts');
+            if (!containerPosts) {
+                console.warn('Elemento #blog-posts não encontrado. Artigos recentes não serão carregados.');
+                return;
+            }
+            containerPosts.innerHTML = '<p class="text-center text-gray-600 col-span-full">Carregando artigos recentes...</p>';
+
+            try {
+                const respostaApi = await fetch('/api/posts/public?limit=3');
+
+                if (!respostaApi.ok) {
+                    const dadosErro = await respostaApi.json().catch(() => ({ erro: 'Erro desconhecido ao buscar artigos.' })); // Fallback para erro
+                    throw new Error(dadosErro.erro || `Erro HTTP ${respostaApi.status} ao buscar os artigos.`);
+                }
+
+                const dadosRecebidos = await respostaApi.json();
+                const postsParaRenderizar = dadosRecebidos.posts;
+
+                if (!postsParaRenderizar || !Array.isArray(postsParaRenderizar)) {
+                    console.error('API não retornou um array de posts válido:', postsParaRenderizar);
+                    containerPosts.innerHTML = '<p class="text-center text-red-500 col-span-full">Formato de dados dos artigos é inválido.</p>';
+                    return;
+                }
+
+                if (postsParaRenderizar.length === 0) {
+                    containerPosts.innerHTML = '<p class="text-center text-gray-600 col-span-full">Nenhum artigo recente encontrado no momento.</p>';
+                    return;
+                }
+
+                containerPosts.innerHTML = ''; // Limpa a mensagem "Carregando..."
+
+                postsParaRenderizar.forEach(post => {
+                    const thumbnailHtml = post.thumbnail
+                        ? `<img src="${post.thumbnail}" alt="Miniatura do artigo ${post.title}" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300 ease-in-out">`
+                        : '<div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded-t-lg"><span class="text-gray-400 text-sm">Sem imagem de capa</span></div>';
+                    
+                    const dataPublicacao = new Date(post.createdAt).toLocaleDateString('pt-BR', {
+                        day: '2-digit', month: 'long', year: 'numeric'
+                    });
+
+                    containerPosts.innerHTML += `
+                        <article class="group bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 ease-in-out flex flex-col">
+                            <a href="/blog/post.html?slug=${post.slug}" aria-label="Leia mais sobre ${post.title}" class="block">
+                                ${thumbnailHtml}
+                            </a>
+                            <div class="p-5 md:p-6 flex flex-col flex-grow">
+                                <h3 class="font-serif text-lg md:text-xl text-destaque mb-2 font-semibold group-hover:text-ouro transition-colors">
+                                    <a href="/blog/post.html?slug=${post.slug}" class="hover:underline">${post.title}</a>
+                                </h3>
+                                <p class="text-gray-600 text-sm mb-3"><i class="fas fa-calendar-alt fa-fw text-destaque/70 mr-1" aria-hidden="true"></i> ${dataPublicacao}</p>
+                                <p class="text-gray-700 text-sm mb-4 flex-grow line-clamp-3">${post.excerpt}</p>
+                                <div class="mt-auto pt-2">
+                                    <a href="/blog/post.html?slug=${post.slug}" class="inline-flex items-center bg-destaque text-white text-xs sm:text-sm font-medium px-4 py-2 rounded-md hover:bg-ouro hover:text-primaria transition-all duration-300 transform hover:translate-y-[-2px] focus:outline-none focus:ring-2 focus:ring-ouro focus:ring-offset-2">
+                                        Leia o Artigo Completo
+                                        <i class="fas fa-arrow-right ml-2 text-xs" aria-hidden="true"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+                    `;
+                });
+            } catch (erro) {
+                console.error('Erro ao carregar e renderizar posts da API:', erro);
+                // CORRIGIDO: Removido o '\' antes do acento grave.
+                containerPosts.innerHTML =`<p class="text-center text-red-500 col-span-full">Não foi possível carregar os artigos recentes. (\${erro.message})</p>`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            AOS.init({
+                duration: 800,
+                once: true,
+                easing: 'ease-in-out-quad',
+                offset: 50,
+            });
+
+            carregarArtigosDaApi(); 
+
+            const elementoAnoAtual = document.getElementById('anoAtualRodape');
+            if (elementoAnoAtual) {
+                elementoAnoAtual.textContent = new Date().getFullYear();
+            }
+
+            const botaoMenu = document.getElementById('botaoMenuMobile');
+            const menuMobileConteudo = document.getElementById('menuMobileConteudo');
+            if (botaoMenu && menuMobileConteudo) {
+                botaoMenu.addEventListener('click', () => {
+                    const estaAberto = menuMobileConteudo.classList.toggle('hidden');
+                    botaoMenu.setAttribute('aria-expanded', String(!estaAberto));
+                    const iconeBotao = botaoMenu.querySelector('i');
+                    if (iconeBotao) {
+                        iconeBotao.classList.toggle('fa-bars', estaAberto);
+                        iconeBotao.classList.toggle('fa-times', !estaAberto);
+                    }
+                });
+                menuMobileConteudo.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', () => {
+                        menuMobileConteudo.classList.add('hidden');
+                        botaoMenu.setAttribute('aria-expanded', 'false');
+                        const iconeBotao = botaoMenu.querySelector('i');
+                        if (iconeBotao) {
+                           iconeBotao.classList.remove('fa-times');
+                           iconeBotao.classList.add('fa-bars');
+                        }
+                    });
+                });
+            }
+
+            const navbar = document.getElementById('navbarPrincipal');
+            if (navbar) {
+                const navbarFlexContainer = navbar.querySelector('.container > div');
+                window.addEventListener('scroll', () => {
+                    if (window.scrollY > 50) {
+                        if (navbarFlexContainer) navbarFlexContainer.classList.remove('py-3');
+                        if (navbarFlexContainer) navbarFlexContainer.classList.add('py-2');
+                        navbar.classList.add('shadow-xl');
+                    } else {
+                        if (navbarFlexContainer) navbarFlexContainer.classList.remove('py-2');
+                        if (navbarFlexContainer) navbarFlexContainer.classList.add('py-3');
+                        navbar.classList.remove('shadow-xl');
+                    }
+                });
+            }
+        });
+
+        // (Opcional: Script para live reload em ambiente de desenvolvimento com esbuild)
+        // if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        //     new EventSource('/esbuild').addEventListener('change', () => location.reload());
+        // }
     </script>
 </body>
-
 </html>
