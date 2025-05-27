@@ -4,7 +4,7 @@
 &lt;/div>
 
 &lt;p align="center">
-&lt;em>Website institucional moderno e dinâmico para o Dr. Gabriel Mário, advogado com atuação em Direito Estratégico. Inclui um blog jurídico e um painel administrativo para gerenciamento de conteúdo.&lt;/em>
+&lt;em>Website institucional moderno, dinâmico e interativo para o Dr. Gabriel Mário, advogado com atuação em Direito Estratégico. O projeto inclui um blog jurídico com conteúdo gerenciável através de um painel administrativo dedicado.&lt;/em>
 &lt;/p>
 
 &lt;p align="center">
@@ -31,163 +31,156 @@ Rodando a Aplicação Localmente
 🤝 Contribuições
 📜 Licença
 📝 Visão Geral do Projeto
-Este projeto consiste em um website institucional completo para o Dr. Gabriel Mário, focado em apresentar seus serviços jurídicos, sua experiência profissional e um blog para publicação de artigos. Adicionalmente, conta com um painel administrativo para que o Dr. Gabriel possa gerenciar o conteúdo do blog de forma autônoma.
+Este projeto tem como objetivo fornecer uma presença online robusta e profissional para o Dr. Gabriel Mário, destacando sua expertise em Direito Estratégico, especialmente nas áreas de Saúde, Imobiliário e Previdenciário. O website é desenhado para ser informativo, moderno e de fácil navegação, complementado por um blog para disseminação de conhecimento jurídico.
 
-O frontend é construído com HTML, CSS (Tailwind CSS e estilos customizados) e JavaScript (Vanilla JS e Alpine.js para interatividade). O backend é uma API RESTful desenvolvida em Node.js com Express.js, utilizando MongoDB como banco de dados para persistência dos artigos e informações.
+O sistema é composto por:
 
+Frontend (Website Público): Uma interface pública (index.html) com seções detalhadas sobre o advogado, suas áreas de atuação interativas (utilizando Alpine.js para o efeito de "acordeão") e uma listagem de artigos recentes carregados dinamicamente. Inclui também uma página individual (blog/post.html) para a leitura completa dos artigos.
+Painel Administrativo: Uma área restrita (admin.html) acessível via login por token, permitindo ao Dr. Gabriel gerenciar completamente os artigos do blog (criar, visualizar, editar e excluir posts, incluindo upload de imagens de capa).
+Backend (API RESTful): Construído com Node.js e Express.js, este servidor gerencia a lógica de negócios, a persistência de dados dos artigos no MongoDB (via Mongoose) e a autenticação para o painel administrativo.
 ✨ Funcionalidades Principais
-Website Público Responsivo: Interface moderna e adaptável a diversos dispositivos (desktops, tablets, celulares).
-Seções Informativas Detalhadas:
-"Sobre Mim": Apresentação do perfil profissional do Dr. Gabriel Mário.
-"Áreas de Atuação": Descrição interativa dos serviços oferecidos (com cards expansíveis).
+Website Institucional Moderno e Responsivo: Design adaptado para visualização em desktops, tablets e smartphones.
+Seções Detalhadas: "Sobre Mim", "Áreas de Atuação" com cards interativos (efeito collapse/acordeão) e "Contato".
 Blog Dinâmico:
-Listagem de artigos recentes na página inicial.
-Página individual para leitura completa de cada artigo.
-Conteúdo dos artigos carregado dinamicamente do banco de dados.
-Painel de Administração Protegido:
-Acesso restrito via token (/login.html, /admin.html).
-Gerenciamento completo (CRUD) de posts do blog.
-Upload de imagens de capa para os artigos.
-Segurança Aplicada:
-Headers de segurança HTTP via Helmet.js.
-Configuração de CORS para permitir origens específicas.
-Limitação de taxa de requisições (Rate Limiting) para a API.
-Logging: Registros de acesso e erros do servidor para monitoramento e depuração.
+Artigos recentes exibidos na página inicial, carregados diretamente do banco de dados.
+Página de visualização individual para cada artigo, acessada via slug na URL.
+Painel de Administração Protegido (/admin.html):
+Login seguro baseado em token de acesso.
+Interface para gerenciamento completo de artigos (CRUD: Criar, Ler, Atualizar, Deletar).
+Funcionalidade de upload de imagens para as capas dos artigos.
+Opção de salvar artigos como "Rascunho" ou "Publicado".
+Interatividade no Frontend: Uso do Alpine.js para criar componentes dinâmicos como os cards expansíveis e do AOS para animações de scroll.
+Segurança:
+Headers HTTP de segurança configurados com Helmet.js.
+Política de Segurança de Conteúdo (CSP) para mitigar riscos de XSS.
+Configuração de CORS para controlar acesso à API.
+Limitação de taxa de requisições (Rate Limiting) para proteger a API contra abusos.
+Logging: Sistema de logs para requisições HTTP e erros do servidor, facilitando o monitoramento e a depuração.
 🛠️ Tecnologias Utilizadas
 Frontend:
-HTML5
-CSS3
-Tailwind CSS
-JavaScript (Vanilla JS)
-Alpine.js (para interatividade)
-AOS (Animate On Scroll)
-Font Awesome (para ícones)
+HTML5, CSS3, JavaScript (ES6+)
+Tailwind CSS: Framework CSS utilitário para estilização rápida.
+Alpine.js: Framework JavaScript minimalista para compor comportamentos interativos diretamente no HTML.
+Inclui o plugin @alpinejs/collapse para animações de expandir/recolher.
+AOS (Animate On Scroll): Biblioteca para animações ao rolar a página.
+Font Awesome: Biblioteca de ícones.
 Backend:
-Node.js
-Express.js
+Node.js: Ambiente de execução JavaScript server-side.
+Express.js: Framework web para Node.js, usado para construir a API.
 Banco de Dados:
-MongoDB
-Mongoose (ODM)
-Autenticação & Segurança (Backend):
-JSON Web Tokens (JWT) com jsonwebtoken
-cookie-parser
-Helmet.js, CORS, express-rate-limit
+MongoDB: Banco de dados NoSQL orientado a documentos.
+Mongoose: ODM (Object Data Modeling) para MongoDB, facilitando a interação com o banco.
+Autenticação e Segurança (Backend):
+JSON Web Tokens (JWT): Para proteger as rotas do painel administrativo (jsonwebtoken).
+cookie-parser: Middleware para parse de cookies.
+helmet: Middleware para configurar headers HTTP de segurança.
+cors: Middleware para habilitar Cross-Origin Resource Sharing.
+express-rate-limit: Middleware para limitar a taxa de requisições à API.
 Upload de Arquivos:
-Multer
-Ambiente e Ferramentas:
-dotenv (para variáveis de ambiente)
-morgan (logger HTTP)
-Docker (Dockerfile, docker-compose.yml)
-Netlify (sugerido pelo netlify.toml)
+multer: Middleware para manuseio de multipart/form-data (uploads de arquivos).
+Ambiente e Ferramentas de Desenvolvimento:
+dotenv: Módulo para carregar variáveis de ambiente de um arquivo .env.
+morgan: Logger de requisições HTTP para o Express.
+Docker: Plataforma de containerização (Dockerfile, docker-compose.yml).
+Netlify: Configuração presente (netlify.toml), sugerindo uso para deploy (provavelmente do frontend estático).
 ⚙️ Pré-requisitos
-Antes de iniciar, certifique-se de ter os seguintes softwares instalados em sua máquina:
+Antes de executar o projeto, certifique-se de que os seguintes softwares estão instalados em sua máquina:
 
-Node.js (versão 16.x ou superior é recomendada)
-npm (geralmente instalado com o Node.js) ou Yarn
-Uma instância do MongoDB acessível (pode ser local, via Docker, ou um serviço em nuvem como o MongoDB Atlas)
+Node.js (versão 16.x ou mais recente é recomendada)
+npm (geralmente instalado junto com o Node.js) ou Yarn
+Uma instância do MongoDB (seja local, via Docker, ou um serviço na nuvem como MongoDB Atlas) configurada e acessível.
 🚀 Configuração e Execução
-Siga os passos abaixo para configurar e executar o projeto em seu ambiente local:
+Siga estes passos para configurar e rodar o projeto localmente:
 
 1. Clonando o Repositório
-Se você ainda não tem o projeto, clone-o do GitHub (substitua pela URL correta do seu repositório):
+Caso ainda não tenha o código, clone o repositório do GitHub (substitua pela URL correta, se aplicável):
 
 Bash
 
 git clone https://github.com/DevBielCastro/projetositegabrielmarioadv.git
 cd projetositegabrielmarioadv
 2. Instalando Dependências
-Navegue até a pasta raiz do projeto e instale as dependências do Node.js:
+Na pasta raiz do projeto, execute o comando para instalar todas as dependências listadas no package.json:
 
 Bash
 
 npm install
-ou, se preferir usar o Yarn:
+Ou, se estiver usando Yarn:
 
 Bash
 
 yarn install
 3. Configurando Variáveis de Ambiente
-O projeto utiliza um arquivo .env para gerenciar configurações sensíveis e específicas do ambiente.
+Este projeto requer um arquivo .env na raiz para armazenar configurações importantes.
 
-Na raiz do projeto, crie uma cópia do arquivo .env.example e nomeie-a como .env.
+Crie uma cópia do arquivo .env.example (que serve como modelo) e nomeie-a como .env:
 
 Bash
 
 cp .env.example .env
-(No Windows, você pode usar copy .env.example .env)
+(No Windows, use o comando copy .env.example .env)
 
-Abra o arquivo .env recém-criado e edite as seguintes variáveis com seus próprios valores:
+Abra o arquivo .env e preencha as seguintes variáveis com os valores adequados para o seu ambiente:
 
-PORT: A porta em que o servidor Node.js será executado (ex: 3000).
-MONGODB_URI: A string de conexão completa para o seu banco de dados MongoDB.
-Exemplo para MongoDB local: mongodb://localhost:27017/advdb
-Exemplo para MongoDB Atlas: mongodb+srv://SEU_USUARIO:SUA_SENHA@SEU_CLUSTER.mongodb.net/advdb?retryWrites=true&w=majority
-ADMIN_TOKEN: Um token/senha secreta de sua escolha. Este token será usado no campo "Token de Acesso" da página de login (/login.html) para acessar o painel administrativo.
-JWT_SECRET: Uma string secreta longa, complexa e aleatória. É usada para assinar os JSON Web Tokens (JWTs) gerados após o login bem-sucedido no painel admin. Mantenha isso em segredo!
-JWT_EXPIRES_IN: Define o tempo de validade dos JWTs (ex: 1h para uma hora, 7d para sete dias).
-LOG_LEVEL (Opcional): Controla o nível de detalhamento de alguns logs (ex: debug para mais detalhes, ou info).
-Importante: O arquivo .env contém informações sensíveis e não deve ser versionado (incluído no Git). O arquivo .gitignore já deve estar configurado para ignorá-lo.
+PORT: A porta que o servidor Node.js utilizará (ex: 3000).
+MONGODB_URI: Sua string de conexão completa para o banco de dados MongoDB.
+Exemplo local: mongodb://localhost:27017/advdb_gabrielmario (substitua advdb_gabrielmario pelo nome do seu banco)
+Exemplo MongoDB Atlas: mongodb+srv://SEU_USUARIO:SUA_SENHA@SEU_CLUSTER.mongodb.net/advdb_gabrielmario?retryWrites=true&w=majority
+ADMIN_TOKEN: Uma senha ou token secreto de sua escolha. Este valor será usado no campo "Token de Acesso" na página de login (/login.html) para acessar o painel de administração.
+JWT_SECRET: Uma string secreta longa, complexa e única. É crucial para a segurança da assinatura dos JSON Web Tokens (JWTs) do painel.
+JWT_EXPIRES_IN: Define o período de validade para os JWTs (ex: 1h, 24h, 7d).
+LOG_LEVEL (Opcional): Pode ser definido como debug para ver mais detalhes em certos logs de erro.
+Atenção: O arquivo .env contém informações confidenciais e não deve ser enviado para o repositório Git. Ele já está incluído no .gitignore.
 
 4. Rodando a Aplicação Localmente
-Com as dependências instaladas e o arquivo .env configurado, inicie o servidor Node.js:
+Após a instalação das dependências e a configuração do arquivo .env, inicie o servidor:
 
 Bash
 
 node server.js
-Você deverá ver mensagens no console indicando que o servidor foi iniciado e conectado ao MongoDB.
-Acesse o site no seu navegador através de http://localhost:PORTA_CONFIGURADA (ex: http://localhost:3000 se a porta for 3000).
+Você deverá ver mensagens no console confirmando que o servidor foi iniciado e que a conexão com o MongoDB foi bem-sucedida.
+Acesse o website em http://localhost:PORTA_CONFIGURADA (ex: http://localhost:3000, conforme sua configuração de porta).
 
 🐳 Rodando com Docker (Opcional)
-Se você prefere usar Docker para executar o projeto:
+O projeto está preparado para ser executado em containers Docker usando os arquivos Dockerfile e docker-compose.yml.
 
-Certifique-se de que o Docker e o Docker Compose estejam instalados e rodando em sua máquina.
-Configure o arquivo .env na raiz do projeto conforme descrito na seção anterior, pois o Docker Compose o utilizará.
-Na raiz do projeto, execute o seguinte comando para construir a imagem e iniciar os containers:
+Certifique-se de que o Docker e o Docker Compose estão instalados e em execução.
+Configure o arquivo .env na raiz do projeto como descrito acima.
+Na raiz do projeto, execute:
 Bash
 
-docker-compose up --build
-Isso utilizará os arquivos Dockerfile e docker-compose.yml presentes no projeto. O script atualizar_docker.ps1 é um utilitário para usuários de Windows PowerShell que automatiza o rebuild da imagem e o reinício do container.
+docker-compose up --build -d
+O -d executa os containers em modo detached (background). O script atualizar_docker.ps1 é um auxiliar para ambiente Windows PowerShell que facilita o rebuild da imagem e o reinício do container.
 📁 Estrutura do Projeto
-Uma visão geral da organização das pastas e arquivos principais:
+Uma visão simplificada da organização das pastas e arquivos mais importantes:
 
-projetositegabrielmarioadv/
-├── api/                      # Contém toda a lógica da API backend
-│   ├── models/               # Definições de schemas do Mongoose (ex: post.js)
-│   ├── auth.js               # Lógica de autenticação para o painel admin
-│   └── posts.js              # Rotas e lógica para o CRUD de artigos
-├── assets/                   # Recursos estáticos do frontend
-│   ├── css/                  # Arquivos CSS (ex: main.css)
-│   ├── img/                  # Imagens do site (logos, fotos, etc.)
-│   └── js/                   # Arquivos JavaScript do frontend (ex: admin.js, main.js)
-├── blog/                     # Template HTML para a página de um post individual
-├── data/                     # (Possivelmente para dados de um MongoDB local via Docker volume)
-├── logs/                     # Arquivos de log gerados pelo servidor
-├── middleware/               # (Pasta para middlewares customizados do Express, como o de autenticação)
-├── node_modules/             # Dependências do projeto (instaladas via npm/yarn)
-├── uploads/                  # Pasta onde as imagens dos posts são salvas
-├── .env                      # Arquivo COM AS SUAS variáveis de ambiente (NÃO versionar!)
-├── .env.example              # Arquivo de exemplo para as variáveis de ambiente
-├── .gitignore                # Especifica arquivos e pastas a serem ignorados pelo Git
-├── admin.html                # Página do painel administrativo
-├── database.js               # Script de conexão com o MongoDB
-├── Dockerfile                # Instruções para construir a imagem Docker da aplicação
-├── docker-compose.yml        # Define os serviços para rodar com Docker Compose
-├── index.html                # Página inicial do website
-├── login.html                # Página de login para o painel administrativo
-├── netlify.toml              # Arquivo de configuração para deploy no Netlify
-├── package-lock.json         # Lockfile gerado pelo npm
-├── package.json              # Metadados do projeto, scripts e dependências
-├── server.js                 # Arquivo principal de inicialização do servidor Node.js/Express
-└── README.md                 # Este arquivo de documentação
+/
+├── api/                  # Lógica da API (rotas, modelos, autenticação)
+├── assets/               # Recursos estáticos do frontend (CSS, JS, imagens)
+├── blog/                 # Template para visualização de posts individuais
+├── data/                 # (Potencialmente para volume de dados do MongoDB em Docker)
+├── logs/                 # Arquivos de log do servidor
+├── middleware/           # Middlewares Express customizados (ex: autenticação de rotas)
+├── uploads/              # Destino para imagens carregadas via painel admin
+├── .env                  # Suas variáveis de ambiente locais (NÃO VERSIONAR)
+├── .env.example          # Exemplo/template para o arquivo .env
+├── admin.html            # Interface do painel administrativo
+├── index.html            # Página principal do site
+├── login.html            # Página de login do painel
+├── server.js             # Ponto de entrada e configuração do servidor Node.js/Express
+├── database.js           # Script de conexão com o MongoDB
+├── Dockerfile            # Configuração para build da imagem Docker
+├── docker-compose.yml    # Configuração para orquestração de containers com Docker Compose
+├── netlify.toml          # Configuração para deploy na plataforma Netlify
+├── package.json          # Metadados do projeto e lista de dependências Node.js
+└── README.md             # Este arquivo
 🤝 Contribuições
-Se desejar contribuir com o projeto, por favor, siga as diretrizes de contribuição (se houver) ou entre em contato. Pull requests são bem-vindos!
+Feedback, sugestões de melhorias e contribuições para o código são bem-vindos. Sinta-se à vontade para abrir uma Issue para discutir ideias ou reportar problemas, ou um Pull Request com suas implementações.
 
 📜 Licença
-Este projeto é distribuído sob a Licença ISC. Veja o arquivo LICENSE (se existir) ou o package.json para mais detalhes.
+Este projeto é distribuído sob a Licença ISC. Consulte o arquivo package.json para mais detalhes.
 
 
----
-
-Espero que este `README.md` seja útil e completo para o seu projeto! Avise se precisar de mais algum ajuste ou seção.
+Espero que este `README.md` esteja completo e ajude a documentar bem o seu projeto!
 
 Fontes
