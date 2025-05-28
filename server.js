@@ -136,6 +136,8 @@ app.post('/api/upload', uploadConfigurado.single('image'), (requisicao, resposta
 
 // --- ROTAS PARA SERVIR ARQUIVOS HTML PRINCIPAIS ---
 app.get('/', (requisicao, resposta) => resposta.sendFile(path.join(__dirname, 'index.html')));
+// ADICIONADO PARA CORRIGIR O LINK DIRETO PARA /index.html
+app.get('/index.html', (requisicao, resposta) => resposta.sendFile(path.join(__dirname, 'index.html'))); 
 app.get('/login', (requisicao, resposta) => resposta.sendFile(path.join(__dirname, 'login.html')));
 
 app.get('/admin.html', (requisicao, resposta) => {

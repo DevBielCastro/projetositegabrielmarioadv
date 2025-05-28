@@ -3,48 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acesso Restrito - Gabriel Mário Adv</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Acesso Restrito - Painel Administrativo | Gabriel Mário Advocacia</title>
+    
+    <link rel="icon" type="image/x-icon" href="/assets/img/ICONE DO SITE.webp">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primaria: '#1a1a1a',
+                        destaque: '#8B4513', // Marrom (SaddleBrown)
+                        ouro: '#d4af37'      // Dourado
+                    },
+                    fontFamily: {
+                        sans: ['Open Sans', 'sans-serif'],
+                        serif: ['Merriweather', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Para garantir que o fundo ocupe toda a tela e o conteúdo seja centralizado */
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-    <!-- Container central do formulário de login com estilo e sombra -->
-    <div class="bg-white p-8 rounded-xl shadow-lg max-w-md w-full">
-        <!-- Cabeçalho do formulário: logo e título da seção administrativa -->
-        <div class="text-center mb-8">
-            <img src="/assets/img/logo-dourada-transparente.webp" 
-                 alt="Logo" 
-                 class="h-24 mx-auto mb-4">
-            <h1 class="text-2xl font-bold text-gray-800">Acesso Administrativo</h1>
-        </div>
-        
-        <!-- Formulário de autenticação baseado em token de acesso -->
-        <form id="loginForm" class="space-y-6">
-            <div>
-                <!-- Campo de entrada para o token (senha oculta) -->
-                <label class="block text-gray-700 mb-2">Token de Acesso</label>
-                <input type="password" 
-                       id="token" 
-                       required
-                       class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-accent focus:outline-none">
+
+<body class="bg-primaria font-sans text-gray-200 min-h-screen flex flex-col items-center justify-center p-4">
+    
+    <div class="w-full max-w-md">
+        <div class="bg-white/5 backdrop-blur-md p-8 md:p-10 rounded-xl shadow-2xl border border-gray-700">
+            <div class="text-center mb-8">
+                <img src="/assets/img/logo-dourada-transparente.webp" 
+                     alt="Logotipo Gabriel Mário Advocacia" 
+                     class="h-28 mx-auto mb-6">
+                <h1 class="text-2xl md:text-3xl font-bold text-ouro font-serif">Acesso Administrativo</h1>
+                <p class="text-sm text-gray-400 mt-2">Painel de Gerenciamento de Conteúdo</p>
             </div>
             
-            <!-- Botão de submissão para validar o token e realizar login -->
-            <button type="submit" 
-                    class="w-full bg-accent text-white py-2 rounded-lg hover:bg-gold transition duration-300">
-                <i class="fas fa-unlock-alt mr-2"></i>Acessar Painel
-            </button>
-        </form>
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label for="token" class="block text-sm font-medium text-gray-300 mb-1">Token de Acesso</label>
+                    <div class="relative">
+                        <input type="password" 
+                               id="token" 
+                               name="token"
+                               required
+                               placeholder="Digite seu token secreto"
+                               class="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 text-gray-200 rounded-lg focus:ring-2 focus:ring-ouro focus:border-ouro outline-none transition-all placeholder-gray-500"
+                               aria-label="Token de Acesso">
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5">
+                            <i class="fas fa-key text-gray-500"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" 
+                        class="w-full bg-destaque text-white font-semibold py-3 px-4 rounded-lg hover:bg-ouro hover:text-primaria focus:outline-none focus:ring-4 focus:ring-ouro/50 focus:ring-offset-2 focus:ring-offset-primaria transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2">
+                    <i class="fas fa-unlock-alt" aria-hidden="true"></i>
+                    <span>Acessar Painel</span>
+                </button>
+            </form>
+        </div>
+
+        <div class="text-center mt-8">
+            <a href="/index.html" class="text-sm text-gray-400 hover:text-ouro hover:underline transition-colors">
+                <i class="fas fa-arrow-left fa-fw mr-1"></i> Voltar ao site principal
+            </a>
+        </div>
     </div>
 
     <script>
-        // Captura evento de envio do formulário para processar autenticação
+        // Script de login (o mesmo que você já tinha, pois é funcional)
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const token = document.getElementById('token').value;
+            const tokenInput = document.getElementById('token');
+            const token = tokenInput.value;
+
+            // Feedback visual simples no botão
+            const botaoSubmit = e.target.querySelector('button[type="submit"]');
+            const textoOriginalBotao = botaoSubmit.innerHTML;
+            botaoSubmit.disabled = true;
+            botaoSubmit.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Validando...';
 
             try {
-                // Envia requisição POST com o token para endpoint de autenticação
                 const response = await fetch('/api/auth', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -54,17 +107,20 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    // Armazena token retornado e redireciona para painel administrativo
                     localStorage.setItem('authToken', data.token);
                     window.location.href = '/admin.html';
                 } else {
-                    // Exibe erro de validação de token ao usuário
-                    alert(data.error || 'Token inválido!');
+                    alert(data.error || 'Token inválido ou falha na autenticação!');
+                    tokenInput.focus(); // Foca no input novamente
+                    tokenInput.select();  // Seleciona o texto para fácil substituição
+                    botaoSubmit.disabled = false;
+                    botaoSubmit.innerHTML = textoOriginalBotao;
                 }
             } catch (error) {
-                // Log de erro e alerta de falha na conexão
-                console.error('Erro:', error);
-                alert('Erro de conexão com o servidor');
+                console.error('Erro na requisição de login:', error);
+                alert('Erro de conexão com o servidor. Tente novamente mais tarde.');
+                botaoSubmit.disabled = false;
+                botaoSubmit.innerHTML = textoOriginalBotao;
             }
         });
     </script>
