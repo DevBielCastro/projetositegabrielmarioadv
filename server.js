@@ -18,11 +18,10 @@ const rateLimit = require('express-rate-limit');
 const conectarAoBancoDeDados = require('./database');
 
 const app = express();
-const porta = process.env.PORT || 3000; // Conforme suas screenshots
+const porta = process.env.PORT || 3000;
 
 // --- CONFIGURAÇÃO DE LOGS EM ARQUIVO ---
 const pastaDeLogs = path.join(__dirname, 'logs');
-// Assegura que a pasta 'logs' exista antes de qualquer tentativa de escrita.
 if (!fs.existsSync(pastaDeLogs)) {
   fs.mkdirSync(pastaDeLogs);
 }
@@ -37,29 +36,29 @@ app.use(helmet({
       defaultSrc: ["'self'"],
       scriptSrc: [
         "'self'",
-        "'unsafe-inline'", // Para Tailwind config no HTML, e outros scripts inline se houver.
-        "'unsafe-eval'",   // ESSENCIAL: Para Alpine.js processar x-data, @click, etc. no HTML.
+        "'unsafe-inline'",
+        "'unsafe-eval'",
         "cdn.tailwindcss.com",
-        "https://unpkg.com", // Para Alpine.js e AOS
-        "https://kit.fontawesome.com" // Para kit JS do FontAwesome, se usado
+        "https://unpkg.com",
+        "https://kit.fontawesome.com"
       ],
-      scriptSrcAttr: ["'unsafe-inline'"], // Para onclick="..." no admin.html
+      scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc: [
         "'self'",
-        "'unsafe-inline'", // Para estilos inline, se houver.
-        "cdnjs.cloudflare.com", // Para CSS do Font Awesome
-        "https://unpkg.com",    // Para CSS do AOS
-        "https://fonts.googleapis.com" // Para Google Fonts
+        "'unsafe-inline'",
+        "cdnjs.cloudflare.com",
+        "https://unpkg.com",
+        "https://fonts.googleapis.com"
       ],
       fontSrc: [
         "'self'",
-        "https://fonts.gstatic.com", // Para Google Fonts
-        "https://cdnjs.cloudflare.com" // Para arquivos de fonte do Font Awesome (via CSS do cdnjs)
+        "https://fonts.gstatic.com",
+        "https://cdnjs.cloudflare.com"
       ],
-      imgSrc: ["'self'", "data:", "blob:"], // Permite imagens da própria origem, data URLs e blobs.
-      connectSrc: ["'self'"], // Permite conexões (fetch, XHR) para a própria origem.
-      frameAncestors: ["'none'"], // Impede que o site seja embutido em iframes de outras origens.
-      formAction: ["'self'"]      // Permite que formulários enviem dados apenas para a própria origem.
+      imgSrc: ["'self'", "data:", "blob:"],
+      connectSrc: ["'self'"],
+      frameAncestors: ["'none'"],
+      formAction: ["'self'"]
     }
   }
 }));
@@ -107,6 +106,7 @@ conectarAoBancoDeDados();
 
 // --- CARREGAR MODELOS (Schemas do Mongoose) ---
 require('./api/models/post');
+require('./api/models/category');
 
 // --- CONFIGURAÇÃO DO MULTER (Upload de Arquivos) ---
 const armazenamentoDeUploads = multer.diskStorage({
@@ -126,6 +126,7 @@ const uploadConfigurado = multer({
 // --- ROTAS DA API ---
 app.use('/api/auth', require('./api/auth'));
 app.use('/api/posts', require('./api/posts')(uploadConfigurado));
+app.use('/api/categories', require('./api/routes/categories')); 
 
 app.post('/api/upload', uploadConfigurado.single('image'), (requisicao, resposta) => {
   if (!requisicao.file) {
@@ -136,9 +137,16 @@ app.post('/api/upload', uploadConfigurado.single('image'), (requisicao, resposta
 
 // --- ROTAS PARA SERVIR ARQUIVOS HTML PRINCIPAIS ---
 app.get('/', (requisicao, resposta) => resposta.sendFile(path.join(__dirname, 'index.html')));
-// ADICIONADO PARA CORRIGIR O LINK DIRETO PARA /index.html
 app.get('/index.html', (requisicao, resposta) => resposta.sendFile(path.join(__dirname, 'index.html'))); 
-app.get('/login', (requisicao, resposta) => resposta.sendFile(path.join(__dirname, 'login.html')));
+
+// Rota específica para /login.html (para corresponder ao link no index.html)
+app.get('/login.html', (requisicao, resposta) => {
+  resposta.sendFile(path.join(__dirname, 'login.html'));
+});
+// Rota opcional para /login (sem .html) servindo o mesmo arquivo.
+app.get('/login', (requisicao, resposta) => {
+  resposta.sendFile(path.join(__dirname, 'login.html'));
+});
 
 app.get('/admin.html', (requisicao, resposta) => {
   resposta.sendFile(path.join(__dirname, 'admin.html'));

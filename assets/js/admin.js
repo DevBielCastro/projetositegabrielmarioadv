@@ -1,11 +1,12 @@
 // assets/js/admin.js
-// Script principal para a lógica do painel administrativo de posts.
+// Script principal para a lógica do painel administrativo de posts e categorias.
 
 // --- Configurações e Variáveis Globais ---
 const ENDPOINT_BASE_API = '/api';
 let tokenAutenticacao = localStorage.getItem('authToken');
-let postsCarregadosGlobalmente = []; // Armazena os posts buscados da API para uso local.
-let idPostEmEdicao = null; // ID do post atual em edição; null se for um novo post.
+let postsCarregadosGlobalmente = [];
+let idPostEmEdicao = null;
+let categoriasCarregadas = []; // Para armazenar categorias carregadas da API
 
 // Mapeamento dos elementos do DOM para acesso facilitado.
 const DOMElements = {
@@ -15,23 +16,30 @@ const DOMElements = {
   campoTituloPost: document.getElementById('postTitle'),
   campoResumoPost: document.getElementById('postExcerpt'),
   campoConteudoPost: document.getElementById('postContent'),
-  campoCategoriaPost: document.getElementById('postCategory'),
+  campoCategoriaPost: document.getElementById('postCategory'), // Select de categorias no modal de posts
   campoUploadImagem: document.getElementById('imageUpload'),
   elementoPreviaThumbnail: document.getElementById('thumbPreview'),
   campoStatusPost: document.getElementById('postStatus'),
-  botaoCancelarEdicao: document.getElementById('cancelarEdicao'),
+  // IDs ATUALIZADOS conforme seu último admin.html:
+  botaoCancelarEdicaoArtigo: document.getElementById('cancelarEdicaoArtigo'),
   botaoNovoPost: document.getElementById('btnNovoPost'),
-  botaoSalvarRascunho: document.getElementById('salvar-artigo'), // Presumindo que este é o botão submit do formulário.
-  botaoEnviarPost: document.getElementById('enviar-post'),     // Botão para publicação/atualização final.
-  botaoLogoutAdmin: document.getElementById('botaoLogout')
+  botaoSalvarRascunho: document.getElementById('salvar-artigo'),
+  botaoEnviarPost: document.getElementById('enviar-post'),
+  botaoLogoutAdmin: document.getElementById('botaoLogout'),
+  botaoFecharModalArtigo: document.getElementById('fecharModalArtigo'),
+
+  // Novos elementos para o Modal de Categorias (conforme seu último admin.html)
+  btnAbrirModalCategorias: document.getElementById('btnAbrirModalCategorias'),
+  modalCategorias: document.getElementById('categoryModal'),
+  inputNomeNovaCategoria: document.getElementById('inputNomeNovaCategoria'),
+  formNovaCategoria: document.getElementById('novaCategoriaForm'),
+  btnSalvarNovaCategoria: document.getElementById('btnSalvarNovaCategoria'),
+  containerListaCategorias: document.getElementById('containerListaCategorias'),
+  btnFecharModalCategoria: document.getElementById('fecharModalCategoria'),
+  btnConcluirModalCategoria: document.getElementById('btnConcluirModalCategoria')
 };
 
-// --- Funções Principais ---
-
-/**
- * Verifica se o token de autenticação JWT existe no localStorage.
- * Redireciona para a página de login se não houver token.
- */
+// --- Funções de Autenticação e Utilitárias ---
 function verificarAutenticacaoSessao() {
   if (!tokenAutenticacao) {
     alert('Sessão inválida ou expirada. Por favor, faça login novamente.');
@@ -39,108 +47,78 @@ function verificarAutenticacaoSessao() {
   }
 }
 
-/**
- * Configura todos os ouvintes de eventos para os botões e formulários da página.
- */
-function configurarOuvintesDeEventosGlobais() {
-  if (DOMElements.botaoNovoPost) {
-    DOMElements.botaoNovoPost.addEventListener('click', () => {
-      limparFormularioEContextoDeEdicao();
-      DOMElements.modalEdicaoPost.classList.remove('hidden');
-      DOMElements.campoTituloPost.focus();
-    });
+function limparFormularioEContextoDeEdicao() {
+  idPostEmEdicao = null;
+  if (DOMElements.formularioPost) DOMElements.formularioPost.reset();
+  if (DOMElements.elementoPreviaThumbnail) {
+    DOMElements.elementoPreviaThumbnail.src = '';
+    DOMElements.elementoPreviaThumbnail.classList.add('hidden');
+    DOMElements.elementoPreviaThumbnail.removeAttribute('data-imagem-original-url');
   }
+  if (DOMElements.campoUploadImagem) DOMElements.campoUploadImagem.value = '';
 
-  if (DOMElements.botaoCancelarEdicao) {
-    DOMElements.botaoCancelarEdicao.addEventListener('click', () => {
-      DOMElements.modalEdicaoPost.classList.add('hidden');
-      limparFormularioEContextoDeEdicao();
-    });
+  if(DOMElements.botaoSalvarRascunho) DOMElements.botaoSalvarRascunho.disabled = false;
+  if(DOMElements.botaoEnviarPost) {
+    DOMElements.botaoEnviarPost.disabled = false;
+    DOMElements.botaoEnviarPost.textContent = 'Publicar / Atualizar Artigo';
   }
-
-  if (DOMElements.botaoLogoutAdmin) {
-    DOMElements.botaoLogoutAdmin.addEventListener('click', () => {
-      localStorage.removeItem('authToken');
-      window.location.href = '/'; // Redireciona para a página inicial.
-    });
-  }
-
-  if (DOMElements.campoUploadImagem) {
-    DOMElements.campoUploadImagem.addEventListener('change', exibirPreviaDaImagemSelecionada);
-  }
-
-  // O formulário é submetido pelo botão "Salvar Rascunho" (type="submit").
-  if (DOMElements.formularioPost) {
-    DOMElements.formularioPost.addEventListener('submit', async (evento) => {
-      evento.preventDefault(); // Impede a submissão padrão do HTML.
-      await submeterFormularioPost(true); // 'true' indica que é para salvar como rascunho.
-    });
-  }
-
-  // O botão "Enviar Post" tem seu próprio ouvinte de clique.
-  if (DOMElements.botaoEnviarPost) {
-    DOMElements.botaoEnviarPost.addEventListener('click', async () => {
-      await submeterFormularioPost(false); // 'false' indica para usar o status do formulário (geralmente 'published').
-    });
+  // Limpa e repopula o select de categorias com o placeholder e as categorias carregadas
+  if (DOMElements.campoCategoriaPost) {
+    popularDropdownCategorias(); // Garante que o dropdown esteja sempre atualizado ao abrir/limpar o modal
   }
 }
 
-/**
- * Exibe a imagem selecionada no input de upload como uma prévia no elemento <img>.
- * @param {Event} evento - O evento 'change' do input de arquivo.
- */
 function exibirPreviaDaImagemSelecionada(evento) {
   const arquivo = evento.target.files[0];
+  const placeholderPrevia = document.getElementById('placeholderPreviaImagem'); // Pega o placeholder
   if (arquivo) {
     const leitor = new FileReader();
     leitor.onload = (e) => {
       DOMElements.elementoPreviaThumbnail.src = e.target.result;
       DOMElements.elementoPreviaThumbnail.classList.remove('hidden');
+      if (placeholderPrevia) placeholderPrevia.classList.add('hidden'); // Esconde o placeholder
     };
-    leitor.readAsDataURL(arquivo); // Converte o arquivo para base64 para o src da imagem.
+    leitor.readAsDataURL(arquivo);
   } else {
-    // Se o usuário desmarcar o arquivo, e não estiver editando um post que já tinha imagem, limpa a prévia.
     if (!idPostEmEdicao || !DOMElements.elementoPreviaThumbnail.dataset.imagemOriginalUrl) {
       DOMElements.elementoPreviaThumbnail.src = '';
       DOMElements.elementoPreviaThumbnail.classList.add('hidden');
+      if (placeholderPrevia) placeholderPrevia.classList.remove('hidden'); // Mostra o placeholder
     } else {
-      // Restaura a imagem original do post que estava sendo editado.
       DOMElements.elementoPreviaThumbnail.src = DOMElements.elementoPreviaThumbnail.dataset.imagemOriginalUrl;
+      if (placeholderPrevia) placeholderPrevia.classList.add('hidden');
     }
   }
 }
 
-/**
- * Busca os posts da API (rota protegida /api/posts/admin) e os renderiza na página.
- */
+// --- Lógica para Posts ---
 async function carregarPostsDoServidor() {
   verificarAutenticacaoSessao();
   if (!DOMElements.listaPostsContainer) return;
-
-  DOMElements.listaPostsContainer.innerHTML = '<p>Carregando artigos...</p>';
+  DOMElements.listaPostsContainer.innerHTML = '<p class="text-center col-span-full text-gray-600">Carregando artigos...</p>';
 
   try {
-    const resposta = await fetch(`${ENDPOINT_BASE_API}/posts/admin`, { // Busca da rota de admin.
-      headers: {
-        'Authorization': `Bearer ${tokenAutenticacao}`,
-        'Content-Type': 'application/json'
-      }
+    const respostaPosts = await fetch(`${ENDPOINT_BASE_API}/posts/admin?timestamp=${new Date().getTime()}`, { // Adicionado timestamp para evitar cache
+      headers: { 'Authorization': `Bearer ${tokenAutenticacao}` }
     });
 
-    if (resposta.status === 401 || resposta.status === 403) {
-      throw new Error('Não autorizado ou sessão expirada. Faça login novamente.');
+    if (respostaPosts.status === 401 || respostaPosts.status === 403) {
+      throw new Error('Não autorizado ou sessão expirada.');
     }
-    if (!resposta.ok) {
-      const erroData = await resposta.json().catch(() => ({}));
-      throw new Error(erroData.erro || `Falha ao carregar posts: ${resposta.status}`);
+    if (!respostaPosts.ok) {
+      const erroData = await respostaPosts.json().catch(() => ({}));
+      throw new Error(erroData.erro || `Falha ao carregar posts: ${respostaPosts.status}`);
     }
 
-    const dados = await resposta.json();
-    postsCarregadosGlobalmente = dados.posts; // Armazena os posts para uso local.
-    renderizarListaDePosts();
+    const dadosPosts = await respostaPosts.json();
+    postsCarregadosGlobalmente = dadosPosts.posts || []; // Garante que seja um array
+    renderizarListaDePosts(); // Esta função agora mostrará "Nenhum artigo..." se postsCarregadosGlobalmente for vazio
+
+    await carregarCategoriasParaDropdown(); // Carrega categorias para o modal de posts
+
   } catch (erro) {
     console.error('Erro detalhado ao carregar posts:', erro);
-    DOMElements.listaPostsContainer.innerHTML = `<p class="text-red-500">Erro ao carregar artigos: ${erro.message}</p>`;
+    DOMElements.listaPostsContainer.innerHTML = `<p class="text-center col-span-full text-red-500">Erro ao carregar artigos: ${erro.message}</p>`;
     if (erro.message.includes('Não autorizado')) {
         localStorage.removeItem('authToken');
         window.location.href = '/login.html';
@@ -148,16 +126,13 @@ async function carregarPostsDoServidor() {
   }
 }
 
-/**
- * Renderiza os posts carregados na lista da página.
- * Cada post terá botões para editar e excluir.
- */
 function renderizarListaDePosts() {
   if (!DOMElements.listaPostsContainer) return;
   DOMElements.listaPostsContainer.innerHTML = '';
 
-  if (!postsCarregadosGlobalmente || postsCarregadosGlobalmente.length === 0) {
-    DOMElements.listaPostsContainer.innerHTML = '<p>Nenhum artigo cadastrado.</p>';
+  if (postsCarregadosGlobalmente.length === 0) {
+    // CORREÇÃO: Garante que a mensagem apareça se não houver posts
+    DOMElements.listaPostsContainer.innerHTML = '<p class="text-center col-span-full text-gray-500 py-8">Nenhum artigo cadastrado ainda.</p>';
     return;
   }
 
@@ -169,17 +144,18 @@ function renderizarListaDePosts() {
     const textoStatus = post.status === 'published' ? 'Publicado' : 'Rascunho';
 
     const htmlDoCard = `
-      <div class="bg-white rounded-lg shadow-md p-4 mb-4 transition-all hover:shadow-lg">
-        <div class="flex flex-col md:flex-row justify-between items-start">
-          <div class="flex-grow mb-3 md:mb-0 md:mr-4">
-            <h3 class="text-lg font-semibold text-gray-800">${post.title}</h3>
+      <div class="bg-white rounded-lg shadow-md p-4 mb-4 transition-all hover:shadow-lg flex flex-col">
+        <div class="flex-grow">
+            ${post.thumbnail ? `<img src="${post.thumbnail}" alt="Miniatura de ${post.title}" class="mb-3 rounded w-full h-32 object-cover"/>` : '<div class="mb-3 rounded w-full h-32 bg-gray-200 flex items-center justify-center text-gray-400 text-sm">Sem Imagem</div>'}
+            <h3 class="text-lg font-semibold text-gray-800 truncate" title="${post.title}">${post.title}</h3>
             <p class="text-xs text-gray-500 mt-1">
-              <span>Categoria: ${post.category}</span> | <span>${dataCriacao}</span>
+              <span>Cat: ${post.category}</span> | <span>${dataCriacao}</span>
             </p>
-            <p class="text-sm text-gray-600 mt-2 line-clamp-2">${post.excerpt || 'Sem resumo.'}</p>
-          </div>
-          <div class="flex items-center space-x-2 flex-shrink-0 w-full md:w-auto justify-end">
-            <span class="text-xs font-medium px-2 py-0.5 rounded-full ${classeStatus}">${textoStatus}</span>
+            <p class="text-sm text-gray-600 mt-2 line-clamp-2 h-10">${post.excerpt || 'Sem resumo.'}</p>
+        </div>
+        <div class="mt-3 pt-3 border-t border-gray-200 flex justify-between items-center">
+          <span class="text-xs font-medium px-2 py-0.5 rounded-full ${classeStatus}">${textoStatus}</span>
+          <div class="space-x-2">
             <button onclick="prepararEdicaoPost('${post._id}')" title="Editar Post" class="text-blue-500 hover:text-blue-700 p-1">
               <i class="fas fa-pencil-alt"></i>
             </button>
@@ -188,58 +164,67 @@ function renderizarListaDePosts() {
             </button>
           </div>
         </div>
-        ${post.thumbnail ? `<img src="${post.thumbnail}" alt="Miniatura de ${post.title}" class="mt-3 rounded w-full max-h-32 object-cover"/>` : ''}
       </div>
     `;
     DOMElements.listaPostsContainer.insertAdjacentHTML('beforeend', htmlDoCard);
   });
 }
 
-/**
- * Prepara o formulário do modal para editar um post existente.
- * @param {string} postId - O ID do post a ser editado.
- */
 function prepararEdicaoPost(postId) {
   const post = postsCarregadosGlobalmente.find(p => p._id === postId);
   if (!post) {
     alert('Post não encontrado para edição.');
     return;
   }
-
   limparFormularioEContextoDeEdicao();
-  idPostEmEdicao = postId; // Define que estamos editando.
+  idPostEmEdicao = postId;
 
   DOMElements.campoTituloPost.value = post.title;
   DOMElements.campoResumoPost.value = post.excerpt;
   DOMElements.campoConteudoPost.value = post.content || '';
-  DOMElements.campoCategoriaPost.value = post.category;
+  // Pré-seleciona a categoria correta no dropdown
+  if (DOMElements.campoCategoriaPost) {
+      DOMElements.campoCategoriaPost.value = post.category;
+      // Se a categoria do post não estiver no dropdown (caso raro), ele não será selecionado.
+      // Poderia adicionar a categoria do post ao dropdown se ela não existir.
+      if (DOMElements.campoCategoriaPost.value !== post.category) {
+          console.warn(`Categoria "${post.category}" do post não encontrada no dropdown.`);
+          // Adicionar a categoria se ela não existir nas opções carregadas
+          let categoriaExiste = Array.from(DOMElements.campoCategoriaPost.options).some(opt => opt.value === post.category);
+          if (!categoriaExiste) {
+              const option = document.createElement('option');
+              option.value = post.category;
+              option.textContent = post.category;
+              DOMElements.campoCategoriaPost.appendChild(option);
+          }
+          DOMElements.campoCategoriaPost.value = post.category;
+      }
+  }
+
   DOMElements.campoStatusPost.value = post.status || 'draft';
 
+  const placeholderPrevia = document.getElementById('placeholderPreviaImagem');
   if (post.thumbnail) {
     DOMElements.elementoPreviaThumbnail.src = post.thumbnail;
-    DOMElements.elementoPreviaThumbnail.dataset.imagemOriginalUrl = post.thumbnail; // Guarda URL original.
+    DOMElements.elementoPreviaThumbnail.dataset.imagemOriginalUrl = post.thumbnail;
     DOMElements.elementoPreviaThumbnail.classList.remove('hidden');
+    if (placeholderPrevia) placeholderPrevia.classList.add('hidden');
   } else {
-     DOMElements.elementoPreviaThumbnail.classList.add('hidden');
-     DOMElements.elementoPreviaThumbnail.removeAttribute('data-imagem-original-url');
+    DOMElements.elementoPreviaThumbnail.classList.add('hidden');
+    DOMElements.elementoPreviaThumbnail.removeAttribute('data-imagem-original-url');
+    if (placeholderPrevia) placeholderPrevia.classList.remove('hidden');
   }
-  DOMElements.campoUploadImagem.value = ''; // Limpa o campo de arquivo.
+  DOMElements.campoUploadImagem.value = '';
 
   DOMElements.modalEdicaoPost.classList.remove('hidden');
   DOMElements.campoTituloPost.focus();
 }
 
-/**
- * Função principal para criar ou atualizar um post, enviando dados para a API.
- * Utiliza FormData para permitir o upload de imagem.
- * @param {boolean} salvarComoRascunho - Se true, o status do post será 'draft', ignorando o seletor.
- */
 async function submeterFormularioPost(salvarComoRascunho) {
   verificarAutenticacaoSessao();
-
   const { campoTituloPost, campoResumoPost, campoConteudoPost, campoCategoriaPost, campoStatusPost, campoUploadImagem } = DOMElements;
 
-  if (!campoTituloPost.value.trim() || !campoConteudoPost.value.trim() || !campoResumoPost.value.trim() || !campoCategoriaPost.value.trim()) {
+  if (!campoTituloPost.value.trim() || !campoConteudoPost.value.trim() || !campoResumoPost.value.trim() || !campoCategoriaPost.value) { // Categoria também é obrigatória
     alert('Preencha todos os campos obrigatórios: Título, Resumo, Conteúdo e Categoria.');
     return;
   }
@@ -248,23 +233,19 @@ async function submeterFormularioPost(salvarComoRascunho) {
   dadosFormulario.append('title', campoTituloPost.value.trim());
   dadosFormulario.append('excerpt', campoResumoPost.value.trim());
   dadosFormulario.append('content', campoConteudoPost.value.trim());
-  dadosFormulario.append('category', campoCategoriaPost.value.trim());
+  dadosFormulario.append('category', campoCategoriaPost.value);
   dadosFormulario.append('status', salvarComoRascunho ? 'draft' : campoStatusPost.value);
 
   const arquivoDeImagem = campoUploadImagem.files[0];
   if (arquivoDeImagem) {
-    dadosFormulario.append('image', arquivoDeImagem); // Adiciona a imagem apenas se um novo arquivo foi selecionado.
+    dadosFormulario.append('image', arquivoDeImagem);
   }
-  // Se for uma edição (idPostEmEdicao existe) e nenhuma nova imagem foi selecionada,
-  // não adicionamos 'image' ao FormData. O backend (api/posts.js) não alterará
-  // o thumbnail se 'req.file' não estiver presente na atualização.
 
   const metodoHTTP = idPostEmEdicao ? 'PUT' : 'POST';
   const urlAPI = idPostEmEdicao
     ? `${ENDPOINT_BASE_API}/posts/${idPostEmEdicao}`
     : `${ENDPOINT_BASE_API}/posts`;
 
-  // Feedback visual e desabilitar botões
   DOMElements.botaoSalvarRascunho.disabled = true;
   DOMElements.botaoEnviarPost.disabled = true;
   const textoBotaoOriginal = DOMElements.botaoEnviarPost.textContent;
@@ -273,10 +254,7 @@ async function submeterFormularioPost(salvarComoRascunho) {
   try {
     const resposta = await fetch(urlAPI, {
       method: metodoHTTP,
-      headers: {
-        'Authorization': `Bearer ${tokenAutenticacao}`,
-        // Content-Type não é definido manualmente ao usar FormData; o navegador o faz.
-      },
+      headers: { 'Authorization': `Bearer ${tokenAutenticacao}` },
       body: dadosFormulario,
     });
 
@@ -284,14 +262,10 @@ async function submeterFormularioPost(salvarComoRascunho) {
       const erroData = await resposta.json().catch(() => ({ erro: `Erro HTTP ${resposta.status}` }));
       throw new Error(erroData.erro || `Falha ao salvar o post.`);
     }
-
-    // const postSalvo = await resposta.json(); // Dados do post retornado pela API.
-
     alert(`Post ${salvarComoRascunho ? 'salvo como rascunho' : (idPostEmEdicao ? 'atualizado' : 'publicado')} com sucesso!`);
     DOMElements.modalEdicaoPost.classList.add('hidden');
     limparFormularioEContextoDeEdicao();
-    await carregarPostsDoServidor(); // Recarrega a lista para refletir as mudanças.
-
+    await carregarPostsDoServidor();
   } catch (erro) {
     console.error('Erro ao submeter post:', erro);
     alert(`Erro: ${erro.message}`);
@@ -302,67 +276,268 @@ async function submeterFormularioPost(salvarComoRascunho) {
   }
 }
 
-/**
- * Solicita confirmação e, se confirmado, envia requisição para excluir um post.
- * @param {string} postId - O ID do post a ser excluído.
- */
 async function confirmarExclusaoPost(postId) {
   verificarAutenticacaoSessao();
-  if (!confirm('Tem certeza que deseja excluir este post permanentemente?')) {
-    return;
-  }
+  if (!confirm('Tem certeza que deseja excluir este post permanentemente?')) return;
 
   try {
     const resposta = await fetch(`${ENDPOINT_BASE_API}/posts/${postId}`, {
       method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${tokenAutenticacao}`,
-      }
+      headers: { 'Authorization': `Bearer ${tokenAutenticacao}` }
     });
-
     if (!resposta.ok) {
       const erroData = await resposta.json().catch(() => ({}));
       throw new Error(erroData.erro || `Falha ao excluir post: ${resposta.status}`);
     }
-
     alert('Post excluído com sucesso.');
-    await carregarPostsDoServidor(); // Recarrega a lista.
+    await carregarPostsDoServidor();
   } catch (erro) {
     console.error('Erro ao excluir post:', erro);
     alert(`Erro ao excluir: ${erro.message}`);
   }
 }
 
-/**
- * Limpa os campos do formulário, a prévia da imagem e o estado de edição.
- */
-function limparFormularioEContextoDeEdicao() {
-  idPostEmEdicao = null;
-  if (DOMElements.formularioPost) DOMElements.formularioPost.reset();
-  if (DOMElements.elementoPreviaThumbnail) {
-    DOMElements.elementoPreviaThumbnail.src = '';
-    DOMElements.elementoPreviaThumbnail.classList.add('hidden');
-    DOMElements.elementoPreviaThumbnail.removeAttribute('data-imagem-original-url');
-  }
-  if (DOMElements.campoUploadImagem) DOMElements.campoUploadImagem.value = '';
 
-  // Garante que os botões de submissão estejam habilitados
-  if(DOMElements.botaoSalvarRascunho) DOMElements.botaoSalvarRascunho.disabled = false;
-  if(DOMElements.botaoEnviarPost) {
-    DOMElements.botaoEnviarPost.disabled = false;
-    DOMElements.botaoEnviarPost.textContent = 'Enviar Post';
+// --- LÓGICA PARA GERENCIAMENTO DE CATEGORIAS ---
+async function carregarCategoriasParaDropdown() {
+  if (!DOMElements.campoCategoriaPost) return;
+  try {
+    const resposta = await fetch(`${ENDPOINT_BASE_API}/categories?timestamp=${new Date().getTime()}`, { // Adicionado timestamp
+      headers: { 'Authorization': `Bearer ${tokenAutenticacao}` }
+    });
+    if (!resposta.ok) {
+      console.error('Erro HTTP ao buscar categorias para o dropdown:', resposta.status);
+      DOMElements.campoCategoriaPost.innerHTML = '<option value="">Erro ao carregar</option>';
+      return;
+    }
+    const dados = await resposta.json();
+    categoriasCarregadas = dados.categories || []; // Supondo que a API retorna { categories: [...] }
+    popularDropdownCategorias();
+  } catch (erro) {
+    console.error('Erro na requisição de categorias:', erro);
+    DOMElements.campoCategoriaPost.innerHTML = '<option value="">Falha na conexão</option>';
+  }
+}
+
+function popularDropdownCategorias() {
+    if (!DOMElements.campoCategoriaPost) return;
+    const valorSelecionadoAnteriormente = DOMElements.campoCategoriaPost.value; // Guarda o valor selecionado, se houver
+    
+    DOMElements.campoCategoriaPost.innerHTML = '<option value="" disabled>Selecione uma categoria</option>'; 
+
+    if (categoriasCarregadas.length > 0) {
+        categoriasCarregadas.forEach(categoria => {
+            const option = document.createElement('option');
+            option.value = categoria.nome; // Salva o nome da categoria como valor
+            option.textContent = categoria.nome;
+            DOMElements.campoCategoriaPost.appendChild(option);
+        });
+    } else {
+        DOMElements.campoCategoriaPost.innerHTML = '<option value="" disabled selected>Nenhuma categoria cadastrada</option>';
+    }
+    // Tenta restaurar a seleção anterior, se aplicável (útil ao abrir modal para editar post)
+    if (valorSelecionadoAnteriormente) {
+        DOMElements.campoCategoriaPost.value = valorSelecionadoAnteriormente;
+    }
+     // Se após popular, nenhum valor estiver selecionado (ex: categoria do post não existe mais),
+     // e se o dropdown não tiver a opção placeholder selecionada, seleciona o placeholder.
+    if (!DOMElements.campoCategoriaPost.value && DOMElements.campoCategoriaPost.options.length > 0 && DOMElements.campoCategoriaPost.selectedIndex === -1) {
+        DOMElements.campoCategoriaPost.options[0].selected = true;
+    }
+}
+
+async function carregarEExibirCategoriasNoModal() {
+  if (!DOMElements.containerListaCategorias) return;
+  DOMElements.containerListaCategorias.innerHTML = '<p class="text-sm text-gray-500">Carregando categorias...</p>';
+  try {
+    const resposta = await fetch(`${ENDPOINT_BASE_API}/categories?timestamp=${new Date().getTime()}`, { // Adicionado timestamp
+      headers: { 'Authorization': `Bearer ${tokenAutenticacao}` }
+    });
+    if (!resposta.ok) throw new Error('Falha ao buscar categorias.');
+    
+    const dados = await resposta.json();
+    categoriasCarregadas = dados.categories || []; // Supondo que a API retorna { categories: [...] }
+
+    if (categoriasCarregadas.length === 0) {
+      DOMElements.containerListaCategorias.innerHTML = '<p class="text-sm text-gray-500">Nenhuma categoria cadastrada.</p>';
+      return;
+    }
+    DOMElements.containerListaCategorias.innerHTML = '';
+    categoriasCarregadas.forEach(categoria => {
+      const itemCategoria = document.createElement('div');
+      itemCategoria.className = 'flex justify-between items-center p-2.5 bg-gray-50 hover:bg-gray-100 rounded-md border border-gray-200';
+      itemCategoria.innerHTML = `
+        <span class="text-gray-700 flex-grow">${categoria.nome}</span>
+        <div class="space-x-2 flex-shrink-0">
+            <button onclick="prepararEdicaoCategoria('${categoria._id}', '${CSS.escape(categoria.nome)}')" class="text-blue-600 hover:text-blue-800 p-1" aria-label="Editar categoria ${categoria.nome}"><i class="fas fa-pencil-alt fa-sm"></i></button>
+            <button onclick="confirmarExclusaoCategoria('${categoria._id}')" class="text-red-600 hover:text-red-800 p-1" aria-label="Excluir categoria ${categoria.nome}"><i class="fas fa-trash-alt fa-sm"></i></button>
+        </div>
+      `;
+      DOMElements.containerListaCategorias.appendChild(itemCategoria);
+    });
+  } catch (erro) {
+    console.error("Erro ao carregar/exibir categorias:", erro);
+    DOMElements.containerListaCategorias.innerHTML = '<p class="text-sm text-red-500">Erro ao carregar categorias.</p>';
+  }
+}
+
+async function submeterFormularioCategoria(evento) {
+  evento.preventDefault();
+  verificarAutenticacaoSessao();
+
+  const nomeCategoria = DOMElements.inputNomeNovaCategoria.value.trim();
+  if (!nomeCategoria) {
+    alert('Por favor, insira um nome para a categoria.');
+    DOMElements.inputNomeNovaCategoria.focus();
+    return;
+  }
+
+  const idCategoriaEmEdicao = DOMElements.formNovaCategoria.dataset.editingId;
+  const urlApi = idCategoriaEmEdicao 
+              ? `${ENDPOINT_BASE_API}/categories/${idCategoriaEmEdicao}` 
+              : `${ENDPOINT_BASE_API}/categories`;
+  const metodoHttp = idCategoriaEmEdicao ? 'PUT' : 'POST';
+
+  DOMElements.btnSalvarNovaCategoria.disabled = true;
+  const textoOriginalBotao = DOMElements.btnSalvarNovaCategoria.innerHTML;
+  DOMElements.btnSalvarNovaCategoria.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> ${idCategoriaEmEdicao ? 'Atualizando...' : 'Salvando...'}`;
+
+
+  try {
+    const resposta = await fetch(urlApi, {
+      method: metodoHttp,
+      headers: {
+        'Authorization': `Bearer ${tokenAutenticacao}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ nome: nomeCategoria })
+    });
+
+    DOMElements.btnSalvarNovaCategoria.disabled = false;
+    DOMElements.btnSalvarNovaCategoria.innerHTML = textoOriginalBotao;
+
+    if (!resposta.ok) {
+      const erroData = await resposta.json().catch(() => ({}));
+      throw new Error(erroData.erro || `Falha ao ${idCategoriaEmEdicao ? 'atualizar' : 'salvar'} categoria.`);
+    }
+
+    DOMElements.inputNomeNovaCategoria.value = '';
+    if (idCategoriaEmEdicao) {
+        delete DOMElements.formNovaCategoria.dataset.editingId;
+        DOMElements.btnSalvarNovaCategoria.innerHTML = '<i class="fas fa-plus" aria-hidden="true"></i> <span>Adicionar Categoria</span>';
+    }
+    alert(`Categoria "${nomeCategoria}" ${idCategoriaEmEdicao ? 'atualizada' : 'adicionada'} com sucesso!`);
+    await carregarEExibirCategoriasNoModal();
+    await carregarCategoriasParaDropdown(); // Atualiza o dropdown no formulário de posts
+  } catch (erro) {
+    console.error(`Erro ao ${idCategoriaEmEdicao ? 'atualizar' : 'salvar'} categoria:`, erro);
+    alert(`Erro: ${erro.message}`);
+    DOMElements.btnSalvarNovaCategoria.disabled = false;
+    DOMElements.btnSalvarNovaCategoria.innerHTML = textoOriginalBotao;
+  }
+}
+
+function prepararEdicaoCategoria(id, nomeAtual) {
+    DOMElements.inputNomeNovaCategoria.value = nomeAtual; // Preenche o campo com o nome atual
+    DOMElements.inputNomeNovaCategoria.focus();
+    DOMElements.formNovaCategoria.dataset.editingId = id; // Armazena o ID no formulário para uso na submissão
+    DOMElements.btnSalvarNovaCategoria.innerHTML = '<i class="fas fa-save" aria-hidden="true"></i> <span>Atualizar Categoria</span>'; // Muda o texto do botão
+}
+
+async function confirmarExclusaoCategoria(id) {
+    verificarAutenticacaoSessao();
+    if (!confirm('Tem certeza que deseja excluir esta categoria? Se houver posts usando esta categoria, eles não serão excluídos, mas a categoria será removida deles.')) {
+        return;
+    }
+    try {
+        const resposta = await fetch(`${ENDPOINT_BASE_API}/categories/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${tokenAutenticacao}` }
+        });
+        if (!resposta.ok) {
+            const erroData = await resposta.json().catch(() => ({}));
+            throw new Error(erroData.erro || 'Falha ao excluir categoria.');
+        }
+        alert('Categoria excluída com sucesso!');
+        await carregarEExibirCategoriasNoModal();
+        await carregarCategoriasParaDropdown();
+    } catch (erro) {
+        console.error('Erro ao excluir categoria:', erro);
+        alert(`Erro ao excluir: ${erro.message}`);
+    }
+}
+
+// --- Configuração dos Ouvintes de Eventos ---
+function configurarOuvintesDeEventosGlobais() {
+  // Botões e formulários de Posts
+  if (DOMElements.botaoNovoPost) {
+    DOMElements.botaoNovoPost.addEventListener('click', () => {
+      limparFormularioEContextoDeEdicao();
+      DOMElements.modalEdicaoPost.classList.remove('hidden');
+      DOMElements.campoTituloPost.focus();
+    });
+  }
+  if (DOMElements.botaoCancelarEdicaoArtigo) { // ID ATUALIZADO
+    DOMElements.botaoCancelarEdicaoArtigo.addEventListener('click', () => {
+      DOMElements.modalEdicaoPost.classList.add('hidden');
+      limparFormularioEContextoDeEdicao();
+    });
+  }
+  if (DOMElements.botaoFecharModalArtigo && DOMElements.modalEdicaoPost) { // ID ATUALIZADO
+      DOMElements.botaoFecharModalArtigo.addEventListener('click', () => DOMElements.modalEdicaoPost.classList.add('hidden'));
+  }
+  if (DOMElements.botaoLogoutAdmin) {
+    DOMElements.botaoLogoutAdmin.addEventListener('click', () => {
+      localStorage.removeItem('authToken');
+      window.location.href = '/';
+    });
+  }
+  if (DOMElements.campoUploadImagem) {
+    DOMElements.campoUploadImagem.addEventListener('change', exibirPreviaDaImagemSelecionada);
+  }
+  if (DOMElements.formularioPost) {
+    DOMElements.formularioPost.addEventListener('submit', async (evento) => {
+      evento.preventDefault();
+      await submeterFormularioPost(true);
+    });
+  }
+  if (DOMElements.botaoEnviarPost) {
+    DOMElements.botaoEnviarPost.addEventListener('click', async () => {
+      await submeterFormularioPost(false);
+    });
+  }
+
+  // Botões e formulários de Categorias
+  if (DOMElements.btnAbrirModalCategorias && DOMElements.modalCategorias) {
+    DOMElements.btnAbrirModalCategorias.addEventListener('click', async () => {
+      DOMElements.inputNomeNovaCategoria.value = ''; // Limpa o input
+      delete DOMElements.formNovaCategoria.dataset.editingId; // Garante que não está em modo de edição
+      DOMElements.btnSalvarNovaCategoria.innerHTML = '<i class="fas fa-plus" aria-hidden="true"></i> <span>Adicionar Categoria</span>'; // Restaura botão
+      DOMElements.modalCategorias.classList.remove('hidden');
+      await carregarEExibirCategoriasNoModal();
+    });
+  }
+  if (DOMElements.btnFecharModalCategoria && DOMElements.modalCategorias) {
+    DOMElements.btnFecharModalCategoria.addEventListener('click', () => DOMElements.modalCategorias.classList.add('hidden'));
+  }
+  if (DOMElements.btnConcluirModalCategoria && DOMElements.modalCategorias) {
+    DOMElements.btnConcluirModalCategoria.addEventListener('click', () => DOMElements.modalCategorias.classList.add('hidden'));
+  }
+  if (DOMElements.formNovaCategoria) {
+    DOMElements.formNovaCategoria.addEventListener('submit', submeterFormularioCategoria);
   }
 }
 
 // --- Inicialização do Script ---
-// Adiciona um ouvinte para executar o código quando o DOM estiver totalmente carregado.
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   verificarAutenticacaoSessao();
   configurarOuvintesDeEventosGlobais();
-  carregarPostsDoServidor();
+  await carregarPostsDoServidor(); // Carrega posts
+  // As categorias para o dropdown de posts são carregadas dentro de carregarPostsDoServidor -> carregarCategoriasParaDropdown
 });
 
-// Para que as funções chamadas por `onclick` no HTML funcionem, elas precisam estar no escopo global.
-// Uma abordagem mais moderna seria adicionar todos os event listeners dinamicamente em configurarOuvintesDeEventosGlobais.
+// Exposição global de funções chamadas por onclick dinâmico
 window.prepararEdicaoPost = prepararEdicaoPost;
 window.confirmarExclusaoPost = confirmarExclusaoPost;
+window.prepararEdicaoCategoria = prepararEdicaoCategoria; // Nova
+window.confirmarExclusaoCategoria = confirmarExclusaoCategoria; // Nova
