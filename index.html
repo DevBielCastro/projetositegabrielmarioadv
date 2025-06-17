@@ -39,7 +39,6 @@
         }
     </script>
     <style>
-        /* Ajuda a prevenir o "flash" de conteúdo Alpine antes da inicialização, especialmente para x-show e x-collapse */
         [x-cloak] { display: none !important; }
     </style>
 </head>
@@ -58,8 +57,8 @@
                     <a href="#blog" class="text-ouro hover:text-destaque transition-colors duration-300 font-medium px-2 py-1">Artigos</a>
                     <a href="#contato" class="text-ouro hover:text-destaque transition-colors duration-300 font-medium px-2 py-1">Contato</a>
                     <a href="/login.html"
-                       class="text-sm text-gray-300 hover:text-ouro bg-destaque/60 hover:bg-destaque/90 px-3 py-1.5 rounded-md transition-colors duration-300 font-medium inline-flex items-center" 
-                       aria-label="Acesso administrativo ao painel">
+                        class="text-sm text-gray-300 hover:text-ouro bg-destaque/60 hover:bg-destaque/90 px-3 py-1.5 rounded-md transition-colors duration-300 font-medium inline-flex items-center" 
+                        aria-label="Acesso administrativo ao painel">
                         <i class="fas fa-user-shield fa-fw mr-1.5" aria-hidden="true"></i>Admin
                     </a>
                 </div>
@@ -76,8 +75,8 @@
             <a href="#blog" class="block text-ouro hover:text-destaque px-4 py-3 transition-colors">Artigos</a>
             <a href="#contato" class="block text-ouro hover:text-destaque px-4 py-3 transition-colors">Contato</a>
             <a href="/login.html" 
-               class="block text-gray-300 hover:text-ouro bg-destaque/60 hover:bg-destaque/90 px-4 py-3 transition-colors font-medium border-t border-destaque/30" 
-               aria-label="Acesso administrativo ao painel">
+                class="block text-gray-300 hover:text-ouro bg-destaque/60 hover:bg-destaque/90 px-4 py-3 transition-colors font-medium border-t border-destaque/30" 
+                aria-label="Acesso administrativo ao painel">
                 <i class="fas fa-user-shield fa-fw mr-1.5" aria-hidden="true"></i>Login Admin
             </a>
         </div>
@@ -94,7 +93,7 @@
                     Transformando complexidade jurídica em soluções estratégicas para você.
                 </p>
                 <a href="https://calendly.com/gabrielmarioadv/nova-reuniao?embed_domain=link-types-assets.production.linktr.ee&embed_type=Inline&hide_gdpr_banner=1&hide_event_type_details=1&utm_source=linktr.ee&utm_medium=embed-linktree&back=1" target="_blank" rel="noopener noreferrer"
-                   class="inline-flex items-center bg-destaque text-white text-base md:text-lg px-6 py-3 md:px-8 md:py-3.5 rounded-lg shadow-md hover:bg-ouro hover:text-primaria transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-ouro/50 focus:ring-offset-2 focus:ring-offset-primaria">
+                    class="inline-flex items-center bg-destaque text-white text-base md:text-lg px-6 py-3 md:px-8 md:py-3.5 rounded-lg shadow-md hover:bg-ouro hover:text-primaria transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-ouro/50 focus:ring-offset-2 focus:ring-offset-primaria">
                     Agendar Consulta </a>
             </div>
         </header>
@@ -383,21 +382,16 @@
     <script defer src="https://unpkg.com/@alpinejs/collapse@3.13.10/dist/cdn.min.js"></script>
 
     <script>
-        // Lógica JavaScript principal da página index.html
-
         function app() {
             return {
                 currentArea: null,
-                areas: [/* Dados das áreas (se for usar esta estrutura para algo) */],
+                areas: [],
                 showArea(key) {
-                    this.currentArea = this.areas.find(a => a.key === key);
+                    this.currentArea = this.areas.find(area => area.key === key);
                 }
             }
         }
 
-        /**
-         * Carrega os posts recentes da API e os renderiza na seção de blog.
-         */
         async function carregarArtigosDaApi() {
             const containerPosts = document.getElementById('blog-posts');
             if (!containerPosts) {
@@ -410,8 +404,8 @@
                 const respostaApi = await fetch('/api/posts/public?limit=3');
 
                 if (!respostaApi.ok) {
-                    const dadosErro = await respostaApi.json().catch(() => ({ erro: 'Erro desconhecido ao buscar artigos.' })); 
-                    throw new Error(dadosErro.erro || `Erro HTTP ${respostaApi.status} ao buscar os artigos.`);
+                    const dadosErro = await respostaApi.json().catch(() => ({ error: 'Erro desconhecido ao buscar artigos.' })); 
+                    throw new Error(dadosErro.error || `Erro HTTP ${respostaApi.status} ao buscar os artigos.`);
                 }
 
                 const dadosRecebidos = await respostaApi.json();
@@ -436,29 +430,37 @@
                         : '<div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded-t-lg"><span class="text-gray-400 text-sm">Sem imagem de capa</span></div>';
                     
                     const dataPublicacao = new Date(post.createdAt).toLocaleDateString('pt-BR', {
-                        day: '2-digit', month: 'long', year: 'numeric'
+                        day: '2-digit', 
+                        month: 'long', 
+                        year: 'numeric'
                     });
 
-                    containerPosts.innerHTML += `
-                        <article class="group bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 ease-in-out flex flex-col">
-                            <a href="/blog/post.html?slug=${post.slug}" aria-label="Leia mais sobre ${post.title}" class="block">
-                                <span class="math-inline">\{thumbnailHtml\}
-</a\>
-<div class\="p\-5 md\:p\-6 flex flex\-col flex\-grow"\>
-<h3 class\="font\-serif text\-lg md\:text\-xl text\-destaque mb\-2 font\-semibold group\-hover\:text\-ouro transition\-colors"\>
-<a href\="/blog/post\.html?slug\=</span>{post.slug}" class="hover:underline">${post.title}</a>
-                                </h3>
-                                <p class="text-gray-600 text-sm mb-3"><i class="fas fa-calendar-alt fa-fw text-destaque/70 mr-1" aria-hidden="true"></i> <span class="math-inline">\{dataPublicacao\}</p\>
-<p class\="text\-gray\-700 text\-sm mb\-4 flex\-grow line\-clamp\-3"\></span>{post.excerpt}</p>
-                                <div class="mt-auto pt-2">
-                                    <a href="/blog/post.html?slug=${post.slug}" class="inline-flex items-center bg-destaque text-white text-xs sm:text-sm font-medium px-4 py-2 rounded-md hover:bg-ouro hover:text-primaria transition-all duration-300 transform hover:translate-y-[-2px] focus:outline-none focus:ring-2 focus:ring-ouro focus:ring-offset-2">
-                                        Leia o Artigo Completo
-                                        <i class="fas fa-arrow-right ml-2 text-xs" aria-hidden="true"></i>
-                                    </a>
-                                </div>
+                    const articleElement = document.createElement('article');
+                    articleElement.className = 'group bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 ease-in-out flex flex-col';
+                    articleElement.setAttribute('data-aos', 'fade-up');
+                    
+                    articleElement.innerHTML = `
+                        <a href="/blog/post.html?slug=${post.slug}" aria-label="Leia mais sobre ${post.title}" class="block">
+                            ${thumbnailHtml}
+                        </a>
+                        <div class="p-5 md:p-6 flex flex-col flex-grow">
+                            <h3 class="font-serif text-lg md:text-xl text-destaque mb-2 font-semibold group-hover:text-ouro transition-colors">
+                                <a href="/blog/post.html?slug=${post.slug}" class="hover:underline">${post.title}</a>
+                            </h3>
+                            <p class="text-gray-600 text-sm mb-3">
+                                <i class="fas fa-calendar-alt fa-fw text-destaque/70 mr-1" aria-hidden="true"></i> ${dataPublicacao}
+                            </p>
+                            <p class="text-gray-700 text-sm mb-4 flex-grow line-clamp-3">${post.excerpt}</p>
+                            <div class="mt-auto pt-2">
+                                <a href="/blog/post.html?slug=${post.slug}" class="inline-flex items-center bg-destaque text-white text-xs sm:text-sm font-medium px-4 py-2 rounded-md hover:bg-ouro hover:text-primaria transition-all duration-300 transform hover:translate-y-[-2px] focus:outline-none focus:ring-2 focus:ring-ouro focus:ring-offset-2">
+                                    Leia o Artigo Completo
+                                    <i class="fas fa-arrow-right ml-2 text-xs" aria-hidden="true"></i>
+                                </a>
                             </div>
-                        </article>
+                        </div>
                     `;
+                    
+                    containerPosts.appendChild(articleElement);
                 });
             } catch (erro) {
                 console.error('Erro ao carregar e renderizar posts da API:', erro);
@@ -466,7 +468,7 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', function() {
             AOS.init({
                 duration: 800,
                 once: true,
@@ -484,7 +486,7 @@
             const botaoMenu = document.getElementById('botaoMenuMobile');
             const menuMobileConteudo = document.getElementById('menuMobileConteudo');
             if (botaoMenu && menuMobileConteudo) {
-                botaoMenu.addEventListener('click', () => {
+                botaoMenu.addEventListener('click', function() {
                     const estaAberto = menuMobileConteudo.classList.toggle('hidden');
                     botaoMenu.setAttribute('aria-expanded', String(!estaAberto));
                     const iconeBotao = botaoMenu.querySelector('i');
@@ -493,14 +495,14 @@
                         iconeBotao.classList.toggle('fa-times', !estaAberto);
                     }
                 });
-                menuMobileConteudo.querySelectorAll('a').forEach(link => {
-                    link.addEventListener('click', () => {
+                menuMobileConteudo.querySelectorAll('a').forEach(function(link) {
+                    link.addEventListener('click', function() {
                         menuMobileConteudo.classList.add('hidden');
                         botaoMenu.setAttribute('aria-expanded', 'false');
                         const iconeBotao = botaoMenu.querySelector('i');
                         if (iconeBotao) {
-                           iconeBotao.classList.remove('fa-times');
-                           iconeBotao.classList.add('fa-bars');
+                            iconeBotao.classList.remove('fa-times');
+                            iconeBotao.classList.add('fa-bars');
                         }
                     });
                 });
@@ -509,7 +511,7 @@
             const navbar = document.getElementById('navbarPrincipal');
             if (navbar) {
                 const navbarFlexContainer = navbar.querySelector('.container > div');
-                window.addEventListener('scroll', () => {
+                window.addEventListener('scroll', function() {
                     if (window.scrollY > 50) {
                         if (navbarFlexContainer) navbarFlexContainer.classList.remove('py-3');
                         if (navbarFlexContainer) navbarFlexContainer.classList.add('py-2');
@@ -522,11 +524,6 @@
                 });
             }
         });
-
-        // (Opcional: Script para live reload em ambiente de desenvolvimento com esbuild)
-        // if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        //     new EventSource('/esbuild').addEventListener('change', () => location.reload());
-        // }
     </script>
 </body>
 </html>
